@@ -1,5 +1,9 @@
 {
     "$schema": "https://turbo.build/schema.json",
+    "globalEnv": [
+        "DATABASE_URL",
+        "NEXT_PUBLIC_*"
+    ],
     "tasks": {
         "build": {
             "dependsOn": [
