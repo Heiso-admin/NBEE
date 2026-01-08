@@ -4,5 +4,5 @@
 	branch = refactor/cms-deduplication
 [submodule "packages/core"]
 	path = packages/core
-	url = https://github.com/aac219oo/Core-BEE.git
+	url = https://github.com/Heiso-admin/Core-BEE.git
 	branch = refactor/core-deduplication
