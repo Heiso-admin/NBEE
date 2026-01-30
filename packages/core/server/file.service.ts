@@ -5,7 +5,7 @@ import { fileStorageCategories, files } from "@heiso/core/lib/db/schema";
 import { generateId } from "@heiso/core/lib/id-generator";
 import { auth } from "@heiso/core/modules/auth/auth.config";
 import { eq, sql } from "drizzle-orm";
-import { headers } from "next/headers";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 
 function detectFileType(rawType: string) {
   const mimeToType: Record<string, string> = {
@@ -54,8 +54,7 @@ export async function saveFile(file: {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   if (!tenantId) {
     return Response.json({ error: "Tenant context missing" }, { status: 400 });
   }

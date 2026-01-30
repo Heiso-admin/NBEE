@@ -37,7 +37,8 @@
         "label": "Base URL"
       },
       "domain": {
-        "label": "Domain"
+        "label": "Domain",
+        "invalid_format": "Invalid domain format (e.g., example.com)"
       }
     },
     "branding": {
@@ -76,6 +77,15 @@
     },
     "toast": {
       "success": "Site SEO settings updated"
+    },
+    "language": {
+      "title": "Language Settings",
+      "description": "Manage the language settings for your site.",
+      "default": "Default Language",
+      "default_description": "The default language for your site."
+    },
+    "system_oauth": {
+      "label": "System OAuth"
     }
   },
   "keys": {

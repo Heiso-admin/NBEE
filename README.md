@@ -11,7 +11,7 @@
 ```text
 .
 ├── apps/
-│   └── cms/          # 主要的 CMS 應用程式 (Next.js)
+│   └── web/          # 主要的 Web 應用程式 (Next.js)
 ├── packages/
 │   └── core/         # 共用核心元件與邏輯 (Next.js/Library)
 ├── package.json      # 根目錄設定檔
@@ -136,7 +136,7 @@ Welcome to the **NBEE** project! This is a modern monorepo managed with [TurboRe
 ```text
 .
 ├── apps/
-│   └── cms/          # The main CMS application (Next.js)
+│   └── web/          # The main Web application (Next.js)
 ├── packages/
 │   └── core/         # Shared core components and logic (Next.js/Library)
 ├── package.json      # Root configuration

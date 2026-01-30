@@ -12,7 +12,7 @@ import { auth } from "@heiso/core/modules/auth/auth.config";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-import { headers } from "next/headers";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 
 export type Member = TMember & {
   user: TUser | null;
@@ -20,8 +20,7 @@ export type Member = TMember & {
 };
 async function getTeamMembers(): Promise<Member[]> {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   const members = await db.query.members.findMany({
     with: {
@@ -48,8 +47,7 @@ async function invite({
   name?: string;
 }) {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   if (!tenantId) throw new Error("Tenant context missing");
 
   // 檢查是否已存在相同 email 的成員
@@ -139,8 +137,7 @@ async function updateMember({
   // Prepare member updates, including deletedAt based on status
   const isJoined = data.status === "joined";
 
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   // Note: For updates, rely on ID but filtering by tenantId is safer
   const filters = [eq(members.id, id)];
   if (tenantId) filters.push(eq(members.tenantId, tenantId));
@@ -203,8 +200,7 @@ async function sendApproved({ email }: { email: string }) {
 
 async function resendInvite(id: string) {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   const member = await db.query.members.findFirst({
     where: (t, { eq, and }) => {
@@ -243,8 +239,7 @@ async function resendInvite(id: string) {
 
 async function revokeInvite(id: string) {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   const filters = [eq(members.id, id)];
   if (tenantId) filters.push(eq(members.tenantId, tenantId));
 
@@ -253,8 +248,7 @@ async function revokeInvite(id: string) {
 
 async function leaveTeam(id: string) {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   const filters = [eq(members.id, id)];
   if (tenantId) filters.push(eq(members.tenantId, tenantId));
 
@@ -283,8 +277,7 @@ async function addMember({
   initialPassword: string;
 }) {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   if (!tenantId) throw new Error("Tenant context missing");
 
   // Check if email already exists in users
@@ -349,8 +342,7 @@ async function transferOwnership({
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
   }
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   // 查找當前擁有者
   const currentOwnerMember = await db.query.members.findFirst({
@@ -435,8 +427,7 @@ async function resetMemberPassword({
   if (!session?.user?.id) {
     throw new Error("UNAUTHORIZED");
   }
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   const actorFilters = [eq(members.id, actorMemberId)];
   if (tenantId) actorFilters.push(eq(members.tenantId, tenantId));

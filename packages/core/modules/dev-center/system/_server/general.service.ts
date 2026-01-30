@@ -4,6 +4,8 @@ import type { Locale } from "@heiso/core/i18n/config";
 import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
 import { generalSettings } from "@heiso/core/lib/db/schema";
 import type { Settings } from "@heiso/core/types/system";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
+import { HiveClient } from "@heiso/hive/client";
 
 // 讀取 general_settings（系統級設定）
 async function getGeneralSettings(): Promise<Settings> {
@@ -22,6 +24,26 @@ async function getGeneralSettings(): Promise<Settings> {
 // 寫入 general_settings（以 name 為 key upsert）
 async function saveGeneralSetting(data: Settings) {
   const db = await getDynamicDb();
+
+  // Check for domain update
+  const basicSettings = (data as any)?.basic;
+  if (basicSettings?.domain !== undefined) {
+    const tenantId = await getTenantId();
+
+    if (tenantId) {
+      try {
+        await HiveClient.updateTenant(tenantId, {
+          customDomain: basicSettings.domain || null,
+        });
+      } catch (error) {
+        console.error("Failed to update tenant custom domain", error);
+        // We might want to throw here to prevent saving local settings if remote fails
+        // Or just log it. For now, let's throw to notify user via UI error if possible.
+        throw new Error("Failed to update custom domain");
+      }
+    }
+  }
+
   await db.transaction(async (tx) => {
     const entries = Object.entries(data ?? {});
     if (entries.length === 0) return;
@@ -34,9 +56,8 @@ async function saveGeneralSetting(data: Settings) {
             value,
           })
           .onConflictDoUpdate({
-            target: generalSettings.name,
+            target: [generalSettings.tenantId, generalSettings.name],
             set: {
-              name: key,
               value,
             },
           });

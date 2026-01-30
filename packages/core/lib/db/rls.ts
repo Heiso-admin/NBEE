@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 import { db } from './index';
 
 /**
@@ -47,9 +48,8 @@ export async function resetTenantContext() {
  * Use this in Server Actions where Layout injection doesn't run.
  */
 export async function ensureTenantContext() {
-    const { headers } = await import("next/headers");
-    const h = await headers();
-    const tenantId = h.get("x-tenant-id");
+
+    const tenantId = await getTenantId();
 
     if (tenantId) {
         await setTenantContext(tenantId);

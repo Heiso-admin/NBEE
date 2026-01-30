@@ -11,7 +11,7 @@ import type {
 import { roles } from "@heiso/core/lib/db/schema";
 import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 
 export type Role = TRole & {
   menus: {
@@ -23,8 +23,8 @@ export type Role = TRole & {
 };
 
 async function getRoles(): Promise<Role[]> {
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
+  if (!tenantId) return [];
 
   const db = await getDynamicDb();
   const result = await db.query.roles.findMany({
@@ -54,8 +54,7 @@ async function getRoles(): Promise<Role[]> {
 }
 
 async function createRole(data: Omit<TRoleInsert, "tenantId">) {
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   if (!tenantId) throw new Error("Tenant context missing");
 
   const db = await getDynamicDb();
@@ -65,21 +64,30 @@ async function createRole(data: Omit<TRoleInsert, "tenantId">) {
 }
 
 async function updateRole(id: string, data: TRoleUpdate) {
+  const tenantId = await getTenantId();
+  if (!tenantId) throw new Error("Tenant context missing");
+
   const db = await getDynamicDb();
-  const result = await db.update(roles).set(data).where(eq(roles.id, id));
+  const result = await db
+    .update(roles)
+    .set(data)
+    .where(and(eq(roles.id, id), eq(roles.tenantId, tenantId)));
 
   revalidatePath("/dashboard/role", "page");
   return result;
 }
 
 async function deleteRole({ id }: { id: string }) {
+  const tenantId = await getTenantId();
+  if (!tenantId) throw new Error("Tenant context missing");
+
   const db = await getDynamicDb();
   const result = await db
     .update(roles)
     .set({
       deletedAt: new Date(),
     })
-    .where(and(eq(roles.id, id), isNull(roles.deletedAt)));
+    .where(and(eq(roles.id, id), eq(roles.tenantId, tenantId), isNull(roles.deletedAt)));
 
   revalidatePath("/dashboard/role", "page");
   return result;

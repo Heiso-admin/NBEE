@@ -4,14 +4,13 @@ import type { Locale } from "@heiso/core/i18n/config";
 import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
 import { siteSettings } from "@heiso/core/lib/db/schema";
 import { sql } from "drizzle-orm";
-import { headers } from "next/headers";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 import type { Settings } from "@heiso/core/types/system";
 import type { SiteSetting } from "../settings/general/page";
 
 async function getSettings(): Promise<Settings> {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   const settings = await db.query.settings.findMany({
     columns: { name: true, value: true },
@@ -36,8 +35,7 @@ async function saveSetting() {
 
 async function saveSiteSetting(data: SiteSetting) {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   if (!tenantId) throw new Error("Tenant context missing");
 
   await db.transaction(async (tx) => {
@@ -69,8 +67,7 @@ export { getSettings, saveSetting, saveSiteSetting };
 // 將系統預設語言存入 site_settings.language = { default: <locale> }
 export async function saveDefaultLanguage(locale: Locale) {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   if (!tenantId) throw new Error("Tenant context missing");
 
   await db

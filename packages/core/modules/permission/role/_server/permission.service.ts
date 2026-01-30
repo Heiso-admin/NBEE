@@ -10,7 +10,12 @@ import {
 import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
+
 async function getPermissions() {
+  const tenantId = await getTenantId();
+  if (!tenantId) return [];
+
   // 合併 config 中的 permissions 與 db 中的 permissions
   const map = new Map();
   const permissions = (permissionsConfig as readonly PermissionConfigShape[]).map((p) => {
@@ -28,7 +33,10 @@ async function getPermissions() {
 
   const db = await getDynamicDb();
   const result = await db.query.permissions.findMany({
-    where: (t, { and, isNull }) => and(isNull(t.deletedAt)),
+    where: (t, { and, eq, isNull }) => and(
+      eq(t.tenantId, tenantId),
+      isNull(t.deletedAt)
+    ),
   });
 
   for (const p of result) {
@@ -72,8 +80,12 @@ async function createPermission({
   action: string;
   // type: 'Organization' | 'Project';
 }) {
+  const tenantId = await getTenantId();
+  if (!tenantId) throw new Error("Tenant context missing");
+
   const db = await getDynamicDb();
   const result = await db.insert(permissions).values({
+    tenantId,
     menuId,
     resource,
     action,
@@ -93,6 +105,9 @@ async function updatePermission({
   resource: string;
   action: string;
 }) {
+  const tenantId = await getTenantId();
+  if (!tenantId) throw new Error("Tenant context missing");
+
   const db = await getDynamicDb();
   const result = await db
     .update(permissions)
@@ -100,20 +115,30 @@ async function updatePermission({
       resource,
       action,
     })
-    .where(eq(permissions.id, id));
+    .where(and(
+      eq(permissions.id, id),
+      eq(permissions.tenantId, tenantId)
+    ));
 
   revalidatePath("/dashboard/role", "page");
   return result;
 }
 
 async function deletePermission({ id }: { id: string }) {
+  const tenantId = await getTenantId();
+  if (!tenantId) throw new Error("Tenant context missing");
+
   const db = await getDynamicDb();
   const result = await db
     .update(permissions)
     .set({
       deletedAt: new Date(),
     })
-    .where(and(eq(permissions.id, id), isNull(permissions.deletedAt)));
+    .where(and(
+      eq(permissions.id, id),
+      eq(permissions.tenantId, tenantId),
+      isNull(permissions.deletedAt)
+    ));
 
   revalidatePath("/dashboard/role", "page");
   return result;

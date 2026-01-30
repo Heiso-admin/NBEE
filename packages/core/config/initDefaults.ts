@@ -106,6 +106,39 @@ export const CMS_DEFAULT_MENUS = {
   ],
 };
 
+export const CORE_DEFAULT_MENUS = {
+  role: [
+    {
+      group: "membership",
+      items: [
+        {
+          name: "Role",
+          meta: {
+            url: "/role",
+            icon: "square-user-round",
+            title: "Role",
+          },
+        },
+      ],
+    },
+  ],
+  team: [
+    {
+      group: "membership",
+      items: [
+        {
+          name: "Team",
+          meta: {
+            url: "/team",
+            icon: "users-round",
+            title: "Team",
+          },
+        },
+      ],
+    },
+  ],
+};
+
 export const DEFAULT_ROLES = [
   {
     name: "Admin",
