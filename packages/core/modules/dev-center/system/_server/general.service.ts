@@ -5,7 +5,7 @@ import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
 import { generalSettings } from "@heiso/core/lib/db/schema";
 import type { Settings } from "@heiso/core/types/system";
 import { getTenantId } from "@heiso/core/lib/utils/tenant";
-import { HiveClient } from "@heiso/hive/client";
+import { HiveClient } from "../../../../../hive/src/client";
 
 // 讀取 general_settings（系統級設定）
 async function getGeneralSettings(): Promise<Settings> {

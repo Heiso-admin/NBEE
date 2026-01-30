@@ -195,7 +195,6 @@
         "@elysiajs/swagger": "^1.3.1",
         "@emoji-mart/data": "1.2.1",
         "@faker-js/faker": "^9.8.0",
-        "@heiso/hive": "workspace:*",
         "@hookform/resolvers": "^5.2.1",
         "@iconify/react": "^6.0.0",
         "@next/bundle-analyzer": "^16.0.0",
@@ -347,10 +346,11 @@
         "zod": "^3.23.0",
       },
       "devDependencies": {
+        "@heiso/biome-config": "workspace:*",
+        "@heiso/typescript-config": "workspace:*",
         "@types/node": "^20.12.7",
         "bun-types": "latest",
         "drizzle-kit": "^0.31.5",
-        "typescript": "^5.4.5",
       },
     },
     "packages/typescript-config": {

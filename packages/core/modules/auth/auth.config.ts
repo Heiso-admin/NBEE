@@ -198,7 +198,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // Use dynamic imports to match core patterns and avoid bundler issues
           const { drizzle } = await import("drizzle-orm/postgres-js");
           const postgres = await import("postgres");
-          const { adminUsers } = await import("@heiso/hive/schema");
+          const { adminUsers } = await import("../../../hive/src/schema");
           const { eq } = await import("drizzle-orm");
 
           const connectionString = process.env.HIVE_DATABASE_URL;
@@ -360,7 +360,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           try {
             const { drizzle } = await import("drizzle-orm/postgres-js");
             const postgres = await import("postgres");
-            const { adminUsers } = await import("@heiso/hive/schema");
+            const { adminUsers } = await import("../../../hive/src/schema");
             const { eq } = await import("drizzle-orm");
 
             const connectionString = process.env.HIVE_DATABASE_URL;

@@ -1,6 +1,6 @@
 "use client";
 
-import type { SiteSetting } from "@heiso/core/modules/dev-center/system/settings/site/page";
+import type { SiteSetting } from "@heiso/core/modules/dev-center/system/settings/general/page";
 import { getSiteSettings } from "@heiso/core/server/site.service";
 import {
   createContext,

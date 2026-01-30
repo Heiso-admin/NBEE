@@ -172,8 +172,7 @@
     "use-file-picker": "^2.1.4",
     "usehooks-ts": "^3.1.1",
     "vaul": "^1.1.2",
-    "zod": "^4.1.12",
-    "@heiso/hive": "workspace:*"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@heiso/biome-config": "workspace:*",

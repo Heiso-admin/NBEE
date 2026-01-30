@@ -1,7 +1,7 @@
 "use client";
 
 import { Toaster } from "@heiso/core/components/ui/sonner";
-import type { SiteSetting } from "@heiso/core/modules/dev-center/system/settings/site/page";
+import type { SiteSetting } from "@heiso/core/modules/dev-center/system/settings/general/page";
 import { AccountProvider } from "@heiso/core/providers/account";
 import { SettingProvider } from "@heiso/core/providers/settings";
 import { SiteProvider } from "@heiso/core/providers/site";
