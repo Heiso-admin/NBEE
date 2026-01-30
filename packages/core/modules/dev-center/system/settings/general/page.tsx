@@ -6,6 +6,7 @@ import { Card } from "@heiso/core/components/ui/card";
 import {
   Form,
   FormControl,
+  FormMessage,
   FormField,
   FormItem,
   FormLabel,
@@ -52,32 +53,31 @@ export const SystemOauth = {
   // },
 };
 
-const settingsSchema = z.object({
-  basic: z.object({
-    name: z.string().min(2, "Site name must be at least 2 characters").max(32),
-    title: z.string().min(2, "Site title must be at least 2 characters"),
-    base_url: z.string().min(1, "Base URL must be at least 1 character"),
-    domain: z.string().min(1, "Domain must be at least 1 character"),
-  }),
-  branding: z.object({
-    slogan: z.string().optional(),
-    organization: z.string().optional(),
-    description: z.string().optional(),
-    copyright: z.string().optional(),
-  }),
-  assets: z.object({
-    favicon: z.string().optional(),
-    logo: z.string().optional(),
-    ogImage: z.string().optional(),
-  }),
-  system_oauth: z.string().optional(),
-});
+export type SiteSetting = {
+  basic: {
+    name?: string;
+    title?: string;
+    base_url?: string;
+    domain?: string;
+  };
+  branding: {
+    slogan?: string;
+    organization?: string;
+    description?: string;
+    copyright?: string;
+  };
+  assets: {
+    favicon?: string;
+    logo?: string;
+    ogImage?: string;
+  };
+  system_oauth?: string;
+};
 
-type SettingsFormValues = z.infer<typeof settingsSchema>;
-export type SiteSetting = SettingsFormValues;
+type SettingsFormValues = SiteSetting;
 
 export default function Setting() {
-  const t = useTranslations("dashboard.settings.site");
+  const t = useTranslations("devCenter.settings");
   const [isLoading, startTransition] = useTransition();
   const [generalSettings, setGeneralSettings] = useState<any>(null);
   const [currentLocale, setCurrentLocale] = useState<Locale | undefined>();
@@ -134,6 +134,35 @@ export default function Setting() {
       | undefined;
     setCurrentLocale(locale ?? defaultLocale);
   }, [generalSettings]);
+
+  // Create schema with translations
+  const settingsSchema = z.object({
+    basic: z.object({
+      name: z.string().max(32).optional(),
+      title: z.string().optional(),
+      base_url: z.string().optional(),
+      domain: z
+        .string()
+        .regex(
+          /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$/,
+          t("basic.domain.invalid_format"),
+        )
+        .or(z.literal(""))
+        .optional(),
+    }),
+    branding: z.object({
+      slogan: z.string().optional(),
+      organization: z.string().optional(),
+      description: z.string().optional(),
+      copyright: z.string().optional(),
+    }),
+    assets: z.object({
+      favicon: z.string().optional(),
+      logo: z.string().optional(),
+      ogImage: z.string().optional(),
+    }),
+    system_oauth: z.string().optional(),
+  });
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingsSchema),
@@ -217,10 +246,11 @@ export default function Setting() {
                   name="basic.domain"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("basic.form.domain.label")}</FormLabel>
+                      <FormLabel>{t("basic.domain.label")}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -229,9 +259,7 @@ export default function Setting() {
                   name="system_oauth"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        {t("basic.form.system_oauth.label")}
-                      </FormLabel>
+                      <FormLabel>{t("system_oauth.label")}</FormLabel>
                       <FormControl>
                         <Select
                           value={field.value}

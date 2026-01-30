@@ -37,7 +37,8 @@
         "label": "基礎網址"
       },
       "domain": {
-        "label": "域名"
+        "label": "域名",
+        "invalid_format": "域名格式無效 (例如: example.com)"
       }
     },
     "branding": {
@@ -76,6 +77,15 @@
     },
     "toast": {
       "success": "網站SEO設置已更新"
+    },
+    "language": {
+      "title": "語言設置",
+      "description": "管理您網站的語言設置。",
+      "default": "預設語言",
+      "default_description": "網站的預設語言。"
+    },
+    "system_oauth": {
+      "label": "系統 OAuth"
     }
   },
   "keys": {

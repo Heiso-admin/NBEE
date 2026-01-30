@@ -15,21 +15,17 @@ const nav: Navigation = {
     // },
     [
       {
-        id: "Developers",
-        title: "Developers",
-        path: "/developers",
-        icon: "user-round-plus",
+        id: "Settings",
+        title: "Settings",
+        path: "/settings",
+        icon: "settings",
       },
-    ],
-    [
       {
         id: "Menu",
         title: "Menu",
         path: "/menu",
         icon: "menu",
       },
-    ],
-    [
       {
         id: "Permission",
         title: "Permission",
@@ -51,6 +47,12 @@ const nav: Navigation = {
         icon: "globe-lock",
       },
       {
+        id: "Keys",
+        title: "Keys",
+        path: "/key",
+        icon: "key",
+      },
+      {
         id: "API docs",
         title: "API Docs",
         path: "/../../api/docs",
@@ -67,17 +69,10 @@ const nav: Navigation = {
     ],
     [
       {
-        id: "Keys",
-        title: "Keys",
-        path: "/key",
-        icon: "key",
-      },
-
-      {
-        id: "Settings",
-        title: "Settings",
-        path: "/settings",
-        icon: "settings",
+        id: "Developers",
+        title: "Developers",
+        path: "/developers",
+        icon: "user-round-plus",
       },
     ],
   ],

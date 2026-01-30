@@ -7,7 +7,7 @@ import { generateApiKey, hashApiKey } from "@heiso/core/lib/hash";
 import { auth } from "@heiso/core/modules/auth/auth.config";
 import { and, count, desc, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 
 // Get API key prefix for display
 function getKeyPrefix(key: string): string {
@@ -16,7 +16,6 @@ function getKeyPrefix(key: string): string {
 
 type TApiKeyWithKeyPrefix = TPublicApiKey & { keyPrefix: string };
 
-// Get API Keys list
 // Get API Keys list
 export async function getApiKeysList(
   options: { search?: string; start?: number; limit?: number } = {},
@@ -27,8 +26,7 @@ export async function getApiKeysList(
     return { apiKeys: [], total: 0 };
   }
 
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   const { search, start = 0, limit = 10 } = options;
 
@@ -106,8 +104,7 @@ export async function getApiKey(
     return null;
   }
 
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   try {
     const filters = [
@@ -178,8 +175,7 @@ export async function createApiKey(data: CreateApiKeyInput): Promise<{
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
   }
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   if (!tenantId) return { success: false, error: "Tenant context missing" };
 
   try {
@@ -240,8 +236,7 @@ export async function updateApiKey(
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
   }
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   try {
     const filters = [
@@ -303,8 +298,7 @@ export async function deleteApiKey(
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
   }
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   try {
     const filters = [
@@ -346,8 +340,7 @@ export async function verifyApiKey(key: string): Promise<{
     return { valid: false };
   }
 
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   try {
     const hashedKey = await hashApiKey(key);
@@ -407,8 +400,7 @@ export async function toggleApiKeyStatus(
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
   }
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   try {
     const filters = [

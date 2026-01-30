@@ -3,6 +3,7 @@ import NextAuth, { CredentialsSignin, type DefaultSession, type User } from "nex
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 
 // Extend types
 declare module "next-auth" {
@@ -191,8 +192,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   events: {
     async signIn({ user, account, profile }) {
-      // Admin User Logic
-      if (account?.provider === "credentials" && (user as any).isAdminUser) {
+      // Admin User Logic (Skip in Core Mode)
+      if (process.env.APP_MODE !== "core" && account?.provider === "credentials" && (user as any).isAdminUser) {
         try {
           // Use dynamic imports to match core patterns and avoid bundler issues
           const { drizzle } = await import("drizzle-orm/postgres-js");
@@ -235,9 +236,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { hashPassword } = await import("@heiso/core/lib/hash");
         const { generateId } = await import("@heiso/core/lib/id-generator");
 
-        const { headers } = await import("next/headers");
-        const h = await headers();
-        const tenantId = h.get("x-tenant-id");
+        const tenantId = await getTenantId();
 
         const db = await getDynamicDb();
 
@@ -356,8 +355,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // 1. Try Core User
         let user = await getUser(username);
 
-        // 2. Try Hive Admin User
-        if (!user) {
+        // 2. Try Hive Admin User (Skip in Core Mode)
+        if (!user && process.env.APP_MODE !== "core") {
           try {
             const { drizzle } = await import("drizzle-orm/postgres-js");
             const postgres = await import("postgres");

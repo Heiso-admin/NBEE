@@ -5,11 +5,10 @@ import { menus } from "@heiso/core/lib/db/schema";
 import { recursiveList } from "@heiso/core/lib/tree";
 import { eq, inArray, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 
 async function getMenus({ recursive = false }: { recursive?: boolean }) {
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   const db = await getDynamicDb();
 
   const result = await db.query.menus.findMany({
@@ -37,8 +36,7 @@ async function addMenu({
   menu: any;
   revalidateUri?: string;
 }) {
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   if (!tenantId) throw new Error("Tenant context missing");
 
   const db = await getDynamicDb();
@@ -84,8 +82,7 @@ async function updateMenu({
 }
 
 async function removeMenu({ id }: { id: string }) {
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   const db = await getDynamicDb();
 
   // Get all menu items to find children
@@ -127,7 +124,7 @@ async function updateMenusOrder(
 ) {
   const db = await getDynamicDb(); // Use one db for all updates if possible, or per operation
   // Since we execute in parallel with Promise.all, we should get db first.
-  
+
   const updates = items.map((item) => {
     return db
       .update(menus)

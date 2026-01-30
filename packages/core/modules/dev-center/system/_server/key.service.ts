@@ -3,7 +3,8 @@
 import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
 import { settings } from "@heiso/core/lib/db/schema/system/setting";
 import { eq } from "drizzle-orm";
-
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
+import { sql } from "drizzle-orm";
 // import type { KeysFormValues } from '../key/page';
 
 const KEY_GROUP = "api_keys";
@@ -14,13 +15,10 @@ type KeyMapping = {
   "resend.api_key": string;
 };
 
-import { headers } from "next/headers";
-import { sql } from "drizzle-orm";
 
 export async function getKeys() {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
 
   const keySettings = await db.query.settings.findMany({
     where: (fields, { and, eq }) => {
@@ -58,8 +56,7 @@ export async function getKeys() {
 
 export async function saveKeys(data: any) {
   const db = await getDynamicDb();
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   if (!tenantId) throw new Error("Tenant context missing");
 
   const keyMappings: KeyMapping = {

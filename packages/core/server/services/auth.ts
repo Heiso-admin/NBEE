@@ -12,7 +12,7 @@ import { signIn, signOut } from "@heiso/core/modules/auth/auth.config";
 import { ensureMemberReviewOnFirstLogin } from "@heiso/core/modules/auth/_server/user.service";
 
 import { and, eq, isNull } from "drizzle-orm";
-import { headers } from "next/headers";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 
 export async function login(username: string, password: string) {
   try {
@@ -116,22 +116,26 @@ export async function signup(input: {
 
       // 2. Member Binding (pass `tx` to avoid FK race condition)
       if (user?.id) {
-      // const [{ total }] = await db
-      //   .select({ total: sql<number>`count(*)` })
-      //   .from(usersTable);
+        // const [{ total }] = await db
+        //   .select({ total: sql<number>`count(*)` })
+        //   .from(usersTable);
 
-      // const nextStatus = total === 1 ? "joined" : "review";
-      // 不需要審查，直接加入
+        // const nextStatus = total === 1 ? "joined" : "review";
+        // 不需要審查，直接加入
         const nextStatus = "joined";
         console.log("nextStatus: ", nextStatus);
 
-        const headerList = await headers();
-        const tenantId = headerList.get("x-tenant-id") || undefined;
 
+        const tenantId = await getTenantId();
         console.log("[DEBUG] Signup: extracted tenantId from headers:", tenantId);
 
-        // Ensure member exists and bind user
-        await ensureMemberReviewOnFirstLogin(email, user.id, tenantId, tx);
+        if (tenantId) {
+          // Ensure member exists and bind user
+          await ensureMemberReviewOnFirstLogin(email, user.id, tenantId, tx);
+        } else {
+          // In CMS or other apps, missing tenantId during signup might be critical if not handled
+          console.error("[ERROR] Signup: No tenantId found in non-core app mode.");
+        }
       }
     });
 

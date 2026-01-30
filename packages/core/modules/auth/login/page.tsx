@@ -13,6 +13,10 @@ import {
   ensureMemberReviewOnFirstLogin,
   getMember,
 } from "../_server/user.service";
+import { headers } from "next/headers";
+import { HiveClient } from "@heiso/hive/client";
+import { provisionTenantDb, seedDefaults } from "@heiso/core/modules/system/provisioning";
+import { db } from "@heiso/core/lib/db";
 
 export type OAuthDataType = {
   userId: string | null;
@@ -28,9 +32,8 @@ export default async function Page({
    * Only check for owner if we are in a tenant context.
    * On Root Domain (x-tenant-id missing), we show standard login.
    */
-  const { headers } = await import("next/headers");
-  const headersList = await headers();
-  const tenantId = headersList.get("x-tenant-id");
+  const { getTenantId } = await import("@heiso/core/lib/utils/tenant");
+  const tenantId = await getTenantId();
 
   if (tenantId) {
     let hasOwner = false;
@@ -41,47 +44,45 @@ export default async function Page({
       // If table exists but no owner, it might mean partial initialization or just new tenant.
       // We should arguably run provisioning here too to ensure menus/defaults exist.
       if (!hasOwner) {
-         needsProvisioning = true;
+        needsProvisioning = true;
       }
     } catch (e: any) {
       // 42P01: undefined table (Schema missing)
       if (e.code === "42P01") {
-         needsProvisioning = true;
+        needsProvisioning = true;
       } else {
         throw e;
       }
     }
 
     if (needsProvisioning) {
-        console.log(`[Login] Tenant ${tenantId} uninitialized (Missing Owner or Schema). Provisioning...`);
-        const { HiveClient } = await import("@heiso/hive/client");
-        const { provisionTenantDb } = await import("../../system/provisioning");
-        
-        // Use resolveSlug if we have tenantId/slug? 
-        // We have tenantId but Hive expects hostname?
-        // Actually we have x-tenant-id which is UUID. resolveTenant uses hostname.
-        // Assuming host header is reliable for resolution.
-        const host = headersList.get("host") || "";
+      // In Core Mode, skip Hive provisioning to avoid dependencies
+      if (process.env.APP_MODE === "core") {
+        console.warn("[Login] Tenant uninitialized in Core Mode. Seeding defaults locally...");
+
+        // In Core Mode, we pass empty modules list because seedDefaults handles CORE_DEFAULT_MENUS internally
+        await seedDefaults(db, [], tenantId);
+      } else {
+        console.log(`[Login] Tenant ${tenantId} uninitialized. Provisioning via Hive...`);
+
+        const h = await headers();
+        const host = h.get("host") || "";
         const resolved = await HiveClient.resolveTenant(host);
-        
-        // Subscriptions structure: { 'cms': ['module1', ...], ... }
-        // Default to 'cms' if empty/missing
+
         const cmsModules = resolved.subscriptions['cms'] || [];
         const modules = cmsModules.length > 0 ? cmsModules : ["cms"];
 
-        // Determine DB URL (Shared vs Isolated)
         const dbUrl = resolved.tenant?.dbConnection || process.env.DATABASE_URL;
 
         if (dbUrl) {
-            await provisionTenantDb(dbUrl, modules, tenantId);
+          await provisionTenantDb(dbUrl, modules, tenantId);
         } else {
-             console.error("[Login] Cannot provision: No DATABASE_URL found.");
+          console.error("[Login] Cannot provision: No DATABASE_URL found.");
         }
+      }
     }
 
-    // Re-check owner status after provisioning (if we just provisioned)
-    // Actually, if we just provisioned, we know there is NO owner yet.
-    // So we show the Init Form.
+    // Re-check owner status after provisioning
     if (!hasOwner) {
       return (
         <div className="w-full max-w-md space-y-10">
@@ -113,8 +114,8 @@ export default async function Page({
       const { getUser } = await import("../_server/user.service");
       const dbUser = await getUser(sessionEmail);
       if (!dbUser) {
-          // User in session but not in DB. Force logout.
-          redirect("/api/auth/signout");
+        // User in session but not in DB. Force logout.
+        redirect("/api/auth/signout");
       }
     }
 

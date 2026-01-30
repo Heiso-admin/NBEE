@@ -5,7 +5,7 @@ import type { TMenu, TPermission } from "@heiso/core/lib/db/schema";
 import { menus, roleMenus } from "@heiso/core/lib/db/schema";
 import { auth } from "@heiso/core/modules/auth/auth.config";
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
-import { headers } from "next/headers";
+import { getTenantId } from "@heiso/core/lib/utils/tenant";
 
 // Types
 type AccessParams = {
@@ -35,50 +35,49 @@ async function getMyMembership() {
   const userId = session?.user?.id;
   if (!userId) throw new Error(UNAUTHORIZED_ERROR);
 
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   console.log("[DEBUG] getMyMembership userId:", userId, "tenantId:", tenantId);
 
-  if (!tenantId) return { isDeveloper: false }; // Should not happen in normal flow
+  if (!tenantId) return { isDeveloper: false };
 
   const db = await getDynamicDb();
 
   return await db.transaction(async (tx) => {
-     await tx.execute(sql`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`);
-     
-  const [user, membership] = await Promise.all([
-    tx.query.users.findFirst({
-      columns: { id: true },
-      with: { developer: true },
-      where: (t, { eq }) => eq(t.id, userId),
-    }),
-    tx.query.members.findFirst({
-      columns: {
-        id: true,
-        roleId: true,
-        isOwner: true,
-        status: true,
-        tenantId: true
-      },
-      with: {
-        role: {
-          columns: {
-            id: true,
-            fullAccess: true,
+    await tx.execute(sql`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`);
+
+    const [user, membership] = await Promise.all([
+      tx.query.users.findFirst({
+        columns: { id: true },
+        with: { developer: true },
+        where: (t, { eq }) => eq(t.id, userId),
+      }),
+      tx.query.members.findFirst({
+        columns: {
+          id: true,
+          roleId: true,
+          isOwner: true,
+          status: true,
+          tenantId: true
+        },
+        with: {
+          role: {
+            columns: {
+              id: true,
+              fullAccess: true,
+            },
           },
         },
-      },
-      where: (t, { and, eq, isNull }) =>
-            and(eq(t.userId, userId), isNull(t.deletedAt), eq(t.tenantId, tenantId)), // Explicit tenant filter + RLS
-    }),
-  ]);
-    
+        where: (t, { and, eq, isNull }) =>
+          and(eq(t.userId, userId), isNull(t.deletedAt), eq(t.tenantId, tenantId)), // Explicit tenant filter + RLS
+      }),
+    ]);
+
     console.log("[DEBUG] getMyMembership found:", membership?.id, "roleId:", membership?.roleId);
 
-  return {
-    isDeveloper: user?.developer !== null,
-    ...membership,
-  };
+    return {
+      isDeveloper: user?.developer !== null,
+      ...membership,
+    };
   });
 }
 
@@ -86,8 +85,7 @@ async function getMyMenus({
   fullAccess,
   roleId,
 }: AccessParams): Promise<TMenu[]> {
-  const h = await headers();
-  const tenantId = h.get("x-tenant-id");
+  const tenantId = await getTenantId();
   console.log("[DEBUG] getMyMenus tenantId:", tenantId, "fullAccess:", fullAccess, "roleId:", roleId);
 
   if (!tenantId) return [];
@@ -95,32 +93,32 @@ async function getMyMenus({
   const db = await getDynamicDb();
 
   return await db.transaction(async (tx) => {
-      await tx.execute(sql`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`);
+    await tx.execute(sql`SELECT set_config('app.current_tenant_id', ${tenantId}, true)`);
 
-  if (fullAccess) {
-        const found = await tx.query.menus.findMany({
-      where: (t, { and, or, eq, isNull }) =>
-            and(isNull(t.parentId), isNull(t.deletedAt), eq(t.tenantId, tenantId)), // Explicit filter too
-      orderBy: (t, { asc }) => [asc(t.order)],
-    });
-        console.log("[DEBUG] getMyMenus (fullAccess) found count:", found.length);
-        return found;
-  }
+    if (fullAccess) {
+      const found = await tx.query.menus.findMany({
+        where: (t, { and, or, eq, isNull }) =>
+          and(isNull(t.parentId), isNull(t.deletedAt), eq(t.tenantId, tenantId)), // Explicit filter too
+        orderBy: (t, { asc }) => [asc(t.order)],
+      });
+      console.log("[DEBUG] getMyMenus (fullAccess) found count:", found.length);
+      return found;
+    }
 
-  if (!roleId) return [];
+    if (!roleId) return [];
 
-  const roleMenusData = await tx
-    .select({
-      menu: menus,
-    })
-    .from(roleMenus)
-    .leftJoin(menus, eq(roleMenus.menuId, menus.id))
-        .where(and(eq(roleMenus.roleId, roleId), isNull(menus.deletedAt))) // RLS handles tenant
-    .orderBy(asc(menus.order));
+    const roleMenusData = await tx
+      .select({
+        menu: menus,
+      })
+      .from(roleMenus)
+      .leftJoin(menus, eq(roleMenus.menuId, menus.id))
+      .where(and(eq(roleMenus.roleId, roleId), isNull(menus.deletedAt))) // RLS handles tenant
+      .orderBy(asc(menus.order));
 
-      const final = roleMenusData.map((item) => item.menu).filter((i) => i !== null) as TMenu[];
-      console.log("[DEBUG] getMyMenus (role) found count:", final.length);
-      return final;
+    const final = roleMenusData.map((item) => item.menu).filter((i) => i !== null) as TMenu[];
+    console.log("[DEBUG] getMyMenus (role) found count:", final.length);
+    return final;
   });
 }
 
