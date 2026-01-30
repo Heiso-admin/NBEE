@@ -14,7 +14,7 @@ import {
   getMember,
 } from "../_server/user.service";
 import { headers } from "next/headers";
-import { HiveClient } from "@heiso/hive/client";
+import { HiveClient } from "../../../../hive/src/client";
 import { provisionTenantDb, seedDefaults } from "@heiso/core/modules/system/provisioning";
 import { db } from "@heiso/core/lib/db";
 

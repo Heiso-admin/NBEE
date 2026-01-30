@@ -2,7 +2,7 @@
 
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { adminUsers } from "@heiso/hive/schema";
+import { adminUsers } from "../../../../hive/src/schema";
 import { eq } from "drizzle-orm";
 import { hashPassword } from "@heiso/core/lib/hash";
 
