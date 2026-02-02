@@ -119,6 +119,38 @@ bun run dev
 
 
 
+## ➕ 新增子模組 (Add Submodule)
+
+### 標準流程 (目錄完全不存在時)
+
+```bash
+# 在專案根目錄執行
+git submodule add <Git倉庫URL> <存放路徑>
+
+# 例如
+git submodule add https://github.com/Heiso-admin/web.git apps/web
+```
+
+### 2. 現有目錄轉子模組 (尚未有遠端倉庫)
+若您本機已經有專案目錄，但還沒建立遠端 Repo：
+
+1.  **建立遠端倉庫**：先在 GitHub/GitLab 建立一個空的 Repository。
+2.  **推送現有程式碼**：
+    ```bash
+    cd apps/my-app
+    git init
+    git add .
+    git commit -m "Initial commit"
+    git remote add origin <REPO_URL>
+    git push -u origin main
+    ```
+3.  **轉換為子模組**：
+    ```bash
+    cd ../..             # 回到根目錄
+    rm -rf apps/my-app   # 移除本地目錄 (確認已推送成功！)
+    git submodule add <REPO_URL> apps/my-app
+    ```
+
 ## 🤝 貢獻指南
 
 1.  建立功能分支 (Feature Branch)。
@@ -243,6 +275,38 @@ When submodules in `apps/` or `packages/` have updates, follow these steps to sy
 > **Tip**: Vercel will only trigger a deployment after you push the main monorepo changes to GitHub.
 
 
+
+## ➕ Adding Submodules
+
+### Standard Flow (New Directory)
+
+```bash
+# Run in the project root
+git submodule add <Repo URL> <Destination Path>
+
+# Example
+git submodule add https://github.com/Heiso-admin/web.git apps/web
+```
+
+### 2. Existing Local Project to Submodule (No Remote Yet)
+If you have a local project directory but haven't created a remote repository:
+
+1.  **Create Remote Repo**: Create an empty repository on GitHub/GitLab.
+2.  **Push Local Code**:
+    ```bash
+    cd apps/my-app
+    git init
+    git add .
+    git commit -m "Initial commit"
+    git remote add origin <REPO_URL>
+    git push -u origin main
+    ```
+3.  **Convert to Submodule**:
+    ```bash
+    cd ../..             # Return to root
+    rm -rf apps/my-app   # Remove local directory (Ensure push was successful!)
+    git submodule add <REPO_URL> apps/my-app
+    ```
 
 ## 🤝 Contribution
 
