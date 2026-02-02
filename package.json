@@ -17,6 +17,7 @@
         "@biomejs/biome": "^2.2.5",
         "@heiso/biome-config": "workspace:*",
         "@heiso/typescript-config": "workspace:*",
+        "next": "16.0.10",
         "turbo": "^2.3.3",
         "typescript": "^5"
     },
