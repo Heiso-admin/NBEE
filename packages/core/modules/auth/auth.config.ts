@@ -318,6 +318,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { label: "Email" },
         otpVerified: { label: "OTP Verified" },
         userId: { label: "User ID" },
+        isDevLogin: { label: "Is Dev Login" },
       },
       async authorize(credentials, _req) {
         if (credentials?.otpVerified === "true") {
@@ -341,6 +342,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // 1. Try Core User
         let user = await getUser(username);
+
+        if (user) {
+          const isMatch = await verifyPassword(password, user.password);
+          if (isMatch) {
+            // Only grant Super Admin if this request specifically came from Dev Login page
+            // and we are in Core Mode for pm@heiso.io
+            const isRefDevLogin = (credentials as any)?.isDevLogin === "true";
+            const isCoreAdminBypass =
+              process.env.APP_MODE === "core" &&
+              username === "pm@heiso.io" &&
+              isRefDevLogin;
+
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              isDeveloper: isCoreAdminBypass ? true : !!user?.developer,
+              isAdminUser: isCoreAdminBypass ? true : !!(user as any)?.isAdminUser,
+            };
+          }
+        }
 
         // 2. Try Hive Admin User (Skip in Core Mode)
         if (!user && process.env.APP_MODE !== "core") {
