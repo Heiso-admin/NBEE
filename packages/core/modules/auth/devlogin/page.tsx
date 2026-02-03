@@ -1,13 +1,13 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@heiso/core/components/ui/button";
 import { Input } from "@heiso/core/components/ui/input";
 import { Label } from "@heiso/core/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@heiso/core/components/ui/card";
 import { useRouter } from "next/navigation";
-import { checkAdminStatus, updateAdminPassword } from "./actions";
+import { checkAdminStatus, updateAdminPassword, ensureDevUser } from "./actions";
 import Header from "../_components/header";
 
 
@@ -18,8 +18,28 @@ export default function DevLoginPage() {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [initialChecking, setInitialChecking] = useState(true); // New state for initial check
     const [error, setError] = useState('');
     const router = useRouter();
+
+    // Auto-check status on mount
+    useEffect(() => {
+        const initCheck = async () => {
+            // In Dev Login, we prioritize checking the Core PM account status first
+            const result = await checkAdminStatus('pm@heiso.io');
+            if (result.lastLoginAt === null) {
+                // User missing -> Go straight to Prompt
+                setEmail('pm@heiso.io');
+                setStep('prompt');
+            } else {
+                // User exists or error -> Stay on Login
+                // Optional: pre-fill email for convenience?
+                // setEmail('pm@heiso.io'); 
+            }
+            setInitialChecking(false);
+        };
+        initCheck();
+    }, []);
 
     const handleLoginCheck = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,9 +64,21 @@ export default function DevLoginPage() {
 
     const doSignIn = async () => {
         setLoading(true);
+
+        // Pre-check / Auto-create for Dev Login
+        if (email === 'pm@heiso.io') {
+            const checkResult = await ensureDevUser(email, password);
+            if (checkResult.error) {
+                setError(checkResult.error);
+                setLoading(false);
+                return;
+            }
+        }
+
         const result = await signIn("credentials", {
             username: email, // auth.config uses 'username' field
             password: password,
+            isDevLogin: "true",
             redirect: false,
         });
 
@@ -74,6 +106,7 @@ export default function DevLoginPage() {
             const loginResult = await signIn("credentials", {
                 username: email,
                 password: newPassword,
+                isDevLogin: "true",
                 redirect: false,
             });
             if (loginResult?.error) {
@@ -84,6 +117,14 @@ export default function DevLoginPage() {
             }
         }
     };
+
+    if (initialChecking) {
+        return (
+            <div className="w-full h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full space-y-6">
@@ -131,7 +172,8 @@ export default function DevLoginPage() {
                 {step === 'prompt' && (
                     <div className="space-y-6">
                         <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-xl text-sm font-medium leading-relaxed">
-                            Recommendation: This is your first login. Would you like to update your password for better security?
+                            <span className="block mb-1 font-bold">First Time Setup</span>
+                            Please set a secure password for the Core Project Manager account (pm@heiso.io).
                         </div>
 
                         <div className="space-y-2">
@@ -175,20 +217,13 @@ export default function DevLoginPage() {
                         {error && <p className="text-destructive text-sm font-medium ml-1">{error}</p>}
 
                         <div className="flex gap-4 pt-2">
+                            {/* Skip button removed for Core Mode */}
                             <Button
-                                variant="outline"
-                                className="flex-1 h-12 rounded-xl border-white/10 hover:bg-white/5"
-                                onClick={doSignIn}
-                                disabled={loading}
-                            >
-                                Skip
-                            </Button>
-                            <Button
-                                className="flex-1 h-12 bg-primary text-primary-foreground font-bold rounded-xl shadow-[0_4px_12px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_6px_20px_rgba(var(--primary-rgb),0.4)] transition-all duration-300"
+                                className="w-full h-12 bg-primary text-primary-foreground font-bold rounded-xl shadow-[0_4px_12px_rgba(var(--primary-rgb),0.3)] hover:shadow-[0_6px_20px_rgba(var(--primary-rgb),0.4)] transition-all duration-300"
                                 onClick={handleUpdatePassword}
                                 disabled={!newPassword || !confirmPassword || loading}
                             >
-                                Update & Login
+                                Create Account & Login
                             </Button>
                         </div>
                     </div>
