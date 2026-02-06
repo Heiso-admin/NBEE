@@ -3,8 +3,9 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import { CMS_DEFAULT_MENUS, CORE_DEFAULT_MENUS, DEFAULT_ROLES } from '@heiso/core/config/initDefaults';
-import { menus, navigations } from "@heiso/core/lib/db/schema";
+import { menus, navigations, apiKeys } from "@heiso/core/lib/db/schema";
 import { generateNavigationId } from "@heiso/core/lib/id-generator";
+import { generateApiKey, hashApiKey } from "@heiso/core/lib/hash";
 import { eq } from "drizzle-orm";
 import path from "path";
 
@@ -161,21 +162,51 @@ export async function seedDefaults(db: any, modules: string[], tenantId: string)
 
     if (existingNav.length > 0) {
         console.log(`[Provisioning] Navigations already exist for tenant ${tenantId}. Skipping.`);
-        return;
+    } else {
+        console.log('[Provisioning] Seeding "navigations" table for tenant:', tenantId);
+        await db.transaction(async (tx: any) => {
+            const navId = generateNavigationId();
+            const PLACEHOLDER_USER_ID = 'system_init';
+
+            await tx.insert(navigations).values({
+                id: navId,
+                userId: PLACEHOLDER_USER_ID,
+                slug: 'main',
+                name: 'Main Menu',
+                description: 'Default system generated menu',
+                tenantId: tenantId,
+            });
+        });
     }
 
-    console.log('[Provisioning] Seeding "navigations" table for tenant:', tenantId);
-    await db.transaction(async (tx: any) => {
-        const navId = generateNavigationId();
-        const PLACEHOLDER_USER_ID = 'system_init';
+    // 4. Seed API Key
+    const existingApiKey = await db.select().from(apiKeys).where(
+        eq(apiKeys.tenantId, tenantId)
+    ).limit(1);
 
-        await tx.insert(navigations).values({
-            id: navId,
-            userId: PLACEHOLDER_USER_ID,
-            slug: 'main',
-            name: 'Main Menu',
-            description: 'Default system generated menu',
-            tenantId: tenantId,
+    if (existingApiKey.length === 0) {
+        console.log('[Provisioning] Seeding "api_keys" table for tenant:', tenantId);
+        await db.transaction(async (tx: any) => {
+            const rawKey = generateApiKey();
+            const hashedKey = await hashApiKey(rawKey);
+            const PLACEHOLDER_USER_ID = 'system_init';
+
+            await tx.insert(apiKeys).values({
+                tenantId: tenantId,
+                userId: PLACEHOLDER_USER_ID,
+                name: 'Default API Key',
+                description: 'Auto-generated during provisioning',
+                key: hashedKey,
+                isActive: true,
+            });
+
+            console.log(`[Provisioning] -----------------------------------------------------------`);
+            console.log(`[Provisioning] 🔑 Generated Default API Key for tenant ${tenantId}`);
+            console.log(`[Provisioning] Key: ${rawKey}`);
+            console.log(`[Provisioning] ⚠️  SAVE THIS KEY! It is hashed in DB and cannot be recovered.`);
+            console.log(`[Provisioning] -----------------------------------------------------------`);
         });
-    });
+    } else {
+        console.log(`[Provisioning] API Key already exists for tenant ${tenantId}. Skipping.`);
+    }
 }

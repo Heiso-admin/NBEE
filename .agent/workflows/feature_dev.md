@@ -15,6 +15,7 @@ description: 標準化功能開發流程 (Standard Feature Development Workflow)
 3.  **檢查依賴**: 確認是否需要新增 `./package.json` 依賴或修改 `drizzle` Schema。
 
 ## 2. 實作規範 (Implementation)
+-   **SKILLS**: 使用 Next.js 16 以上的skills取得最新技術。
 -   **MCP**: 使用 next-devtools, Supabase, postgres，取得最新資訊。
 -   **語言**: 使用 TypeScript。
 -   **樣式**: 優先使用 Tailwind CSS。
