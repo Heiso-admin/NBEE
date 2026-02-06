@@ -46,7 +46,6 @@ const createApiKeySchema = z.object({
     .min(1, "Name is required")
     .max(100, "Name must be less than 100 characters"),
   expiresAt: z.string().optional(),
-  isActive: z.boolean(),
   rateLimitPlan: z.string(),
   rateLimit: z
     .object({
@@ -84,7 +83,6 @@ export function CreateApiKeyDialog({
     defaultValues: {
       name: "",
       expiresAt: "1.5_years",
-      isActive: true,
       rateLimitPlan: "standard",
       rateLimit: {
         requests: 500,
@@ -116,7 +114,7 @@ export function CreateApiKeyDialog({
           name: data.name,
           description: null,
           expiresAt: expiresAtDate,
-          isActive: data.isActive,
+          isActive: true,
           rateLimit,
         });
 
@@ -238,29 +236,6 @@ export function CreateApiKeyDialog({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="isActive"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between">
-                      <div className="space-y-0.5">
-                        <FormLabel>
-                          {t("active_status")}
-                        </FormLabel>
-                        <FormDescription>
-                          {t("active_status_help")}
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
                 <div className="pt-2 border-t mt-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">
@@ -371,14 +346,6 @@ export function CreateApiKeyDialog({
                 <div>
                   <span className="font-medium">{t("name")}:</span>
                   <p className="text-gray-600">{createdApiKey.apiKey.name}</p>
-                </div>
-                <div>
-                  <span className="font-medium">{t("status")}:</span>
-                  <p className="text-gray-600">
-                    {createdApiKey.apiKey.isActive
-                      ? t("active")
-                      : t("inactive")}
-                  </p>
                 </div>
               </div>
             </div>

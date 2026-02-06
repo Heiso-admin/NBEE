@@ -46,7 +46,6 @@ const editApiKeySchema = z.object({
     .min(1, "Name is required")
     .max(100, "Name must be less than 100 characters"),
   expiresAt: z.string().optional(),
-  isActive: z.boolean(),
   rateLimitPlan: z.string(),
   rateLimit: z
     .object({
@@ -92,7 +91,6 @@ export function EditApiKeyDialog({
     defaultValues: {
       name: apiKey.name,
       expiresAt: "never", // Default to never for simplicity in edit mode
-      isActive: apiKey.isActive,
       rateLimitPlan: getInitialPlan(),
       rateLimit: apiKey.rateLimit || { requests: 500, window: 60 },
     },
@@ -127,7 +125,7 @@ export function EditApiKeyDialog({
           name: data.name,
           description: null,
           expiresAt: expiresAtDate,
-          isActive: data.isActive,
+          isActive: true,
           rateLimit,
         });
 
@@ -203,27 +201,6 @@ export function EditApiKeyDialog({
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="isActive"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between">
-                  <div className="space-y-0.5">
-                    <FormLabel>
-                      {t("active_status")}
-                    </FormLabel>
-                    <FormDescription>{t("active_status_help")}</FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
                 </FormItem>
               )}
             />
