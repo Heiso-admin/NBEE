@@ -49,7 +49,7 @@ export default function DevLoginPage() {
                 {step === 'email' && (
             <><Header
                         title="Dev Login Channel"
-                        description="Internal Admin Access Only (OTP Required)" /><form onSubmit={handleEmailSubmit} className="space-y-5">
+                        description="Admin Access Only (OTP Required)" /><form onSubmit={handleEmailSubmit} className="space-y-5">
 
                             <div className="space-y-2">
                                 <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 ml-1">Email</Label>

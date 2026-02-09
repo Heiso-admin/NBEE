@@ -4,6 +4,7 @@ import { Layout } from "@heiso/core/components/primitives/layout";
 import type { UserAvatarMenuItem } from "@heiso/core/components/primitives/user-avatar";
 import type { Navigation } from "@heiso/core/types/client";
 import { getTranslations } from "next-intl/server";
+import { PermissionProvider } from "@heiso/core/providers/permission";
 
 const nav: Navigation = {
   rootPath: "/dev-center",
@@ -151,25 +152,27 @@ export default async function DashboardLayout({
         </div>
       }
     >
-      <Layout
-        breadcrumb={{
-          items: [
-            {
-              title: "Dev Center",
-            },
-          ],
-        }}
-        navigation={isDeveloper ? nav : undefined}
-        menu={userAvatarMenu}
-      >
-        {!isDeveloper ? (
-          <div className="h-full flex items-center justify-center">
-            Only admin can access this area
-          </div>
-        ) : (
-          children
-        )}
-      </Layout>
+      <PermissionProvider>
+        <Layout
+          breadcrumb={{
+            items: [
+              {
+                title: "Dev Center",
+              },
+            ],
+          }}
+          navigation={isDeveloper ? nav : undefined}
+          menu={userAvatarMenu}
+        >
+          {!isDeveloper ? (
+            <div className="h-full flex items-center justify-center">
+              Only admin can access this area
+            </div>
+          ) : (
+            children
+          )}
+        </Layout>
+      </PermissionProvider>
     </Suspense>
   );
 }

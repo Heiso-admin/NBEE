@@ -142,7 +142,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.member = {
           status: 'joined',
           isOwner: true,
-          roleName: 'Internal Admin',
+          roleName: 'Admin',
           fullAccess: true,
         };
         return session;

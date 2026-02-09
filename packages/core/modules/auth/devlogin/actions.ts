@@ -17,6 +17,19 @@ async function ensureDevUserExists(email: string) {
     // Check if user already exists
     const existingUser = await getUser(email);
     if (existingUser) {
+        // [NEW LOGIC] Check if user is in developers table, if not, add them
+        const developerRecord = await db.query.developers.findFirst({
+            where: (t, { eq }) => eq(t.userId, existingUser.id),
+        });
+
+        if (!developerRecord) {
+            await db.insert(developers).values({
+                userId: existingUser.id,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+        }
+
         return existingUser;
     }
 
