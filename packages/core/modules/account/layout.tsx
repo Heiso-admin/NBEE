@@ -4,6 +4,7 @@ import { auth } from "@heiso/core/modules/auth/auth.config";
 import type { Navigation } from "@heiso/core/types/client";
 import { getTranslations } from "next-intl/server";
 import { getMyMembership } from "../dashboard/(dashboard)/_server/membership.service";
+import { PermissionProvider } from "@heiso/core/providers/permission";
 
 export default async function DashboardLayout({
   children,
@@ -89,19 +90,21 @@ export default async function DashboardLayout({
   }
 
   return (
-    <Layout
-      breadcrumb={{
-        items: [
-          {
-            title: t("breadcrumb.account"),
-            link: "/account",
-          },
-        ],
-      }}
-      navigation={navigation}
-      menu={userAvatarMenu}
-    >
-      {children}
-    </Layout>
+    <PermissionProvider>
+      <Layout
+        breadcrumb={{
+          items: [
+            {
+              title: t("breadcrumb.account"),
+              link: "/account",
+            },
+          ],
+        }}
+        navigation={navigation}
+        menu={userAvatarMenu}
+      >
+        {children}
+      </Layout>
+    </PermissionProvider>
   );
 }
