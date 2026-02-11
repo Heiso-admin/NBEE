@@ -163,6 +163,10 @@
         "typescript": "^5",
       },
     },
+    "apps/test": {
+      "name": "@heiso/test",
+      "version": "0.1.0",
+    },
     "packages/biome-config": {
       "name": "@heiso/biome-config",
       "version": "0.0.0",
@@ -455,6 +459,8 @@
     "@heiso/biome-config": ["@heiso/biome-config@workspace:packages/biome-config"],
 
     "@heiso/core": ["@heiso/core@workspace:packages/core"],
+
+    "@heiso/test": ["@heiso/test@workspace:apps/test"],
 
     "@heiso/typescript-config": ["@heiso/typescript-config@workspace:packages/typescript-config"],
 
