@@ -1,3 +1,0 @@
-[submodule "apps/test"]
-	path = apps/test
-	url = git@github.com:Heiso-admin/test-app.git
