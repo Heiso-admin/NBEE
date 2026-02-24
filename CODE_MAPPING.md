@@ -8,23 +8,31 @@
 
 | 程式碼位置 (Codebase Location) | 文件位置 (Documentation Location) | 說明 (Description) |
 | :--- | :--- | :--- |
-| `packages/core` | `../NBEE-Doc/product-specs/nbee-core` | **NBEE-Core** 核心系統規格與功能說明 |
-| `packages/core/modules` | `../NBEE-Doc/product-specs/nbee-core` | 業務模組詳細規格 |
-| `packages/core/drizzle` | `../NBEE-Doc/architecture/core-concepts` | 資料庫 schema 設計與核心概念 |
-| `packages/biome-config` | `../NBEE-Doc/dev-center/guides` | 程式碼風格與規範 (Linting/Formatting) |
-| `packages/typescript-config` | `../NBEE-Doc/dev-center/guides` | TypeScript 共用設定 |
-| `packages/core/config` | `../NBEE-Doc/architecture/core-concepts` | 系統設定與權限定義 |
-| `packages/core/docs` | `../NBEE-Doc/dev-center` | 內部開發文件與 API 參考 |
+| `packages/core` | `../NBEE-Doc/package/core` | **NBEE-Core** 核心系統規格與功能說明 |
+| `packages/core/app/(www)` | `../NBEE-Doc/apps-spec/cms` | **CMS-BEE** 業務邏輯與介面規格 |
+| `packages/core/drizzle` | `../NBEE-Doc/package/core/db-update-guide.md` | 資料庫 schema 設計與更新指南 |
+| `packages/biome-config` | `../NBEE-Doc/package/core/monorepo-guide.md` | 程式碼風格與 Monorepo 規範 |
+| `packages/typescript-config` | `../NBEE-Doc/package/core/monorepo-guide.md` | TypeScript 共用設定 |
+| `packages/core/config` | `../NBEE-Doc/package/core/architecture-overview.md` | 系統設定與權限定義 |
+| `packages/core/docs` | `../NBEE-Doc/package/core/references.md` | 內部開發文件與參考資料 |
 | `apps/test` | (無) | **Heiso Live** 測試應用程式 |
+
+## 🐝 Hive 服務 (Hive Service)
+
+| 概念 (Concept) | 相關程式碼 (Related Code) | 相關文件 (Doc Location) |
+| :--- | :--- | :--- |
+| **Hive Registry** | `packages/hive` (或內部 Adapter) | `../NBEE-Doc/Hive/registry-guide.md` |
+| **Multi-Tenancy** | `packages/core/proxy.ts` | `../NBEE-Doc/Hive/architecture.md` |
+| **Onboarding** | `packages/core/modules/auth` | `../NBEE-Doc/Hive/onboarding.md` |
 
 ## 🧩 關鍵概念對應 (Key Concepts Mapping)
 
 | 概念 (Concept) | 相關程式碼 (Related Code) | 架構文件 (Architecture Doc) |
 | :--- | :--- | :--- |
-| **Authentication** | `packages/core/lib/auth` | `../NBEE-Doc/architecture/core-concepts` (Auth Section) |
-| **Permissions (RBAC)** | `packages/core/config/permissions.ts` | `../NBEE-Doc/architecture/core-concepts` (Permission System) |
-| **Database Schema** | `packages/core/drizzle/schema.ts` | `../NBEE-Doc/architecture/core-concepts` (Data Model) |
-| **API Architecture** | `packages/core/app/api` | `../NBEE-Doc/dev-center/api-reference` |
+| **Authentication** | `packages/core/app/(auth)` | `../NBEE-Doc/package/core/architecture-overview.md` |
+| **Permissions (RBAC)** | `packages/core/modules/permission` | `../NBEE-Doc/package/core/Core-Spec.md` |
+| **CMS Structure** | `packages/core/app/(www)` | `../NBEE-Doc/apps-spec/cms/overview.md` |
+| **AI Integration** | `packages/core/modules/ai` (若有) | `../NBEE-Doc/package/core/ai-integration.md` |
 
 ## 💡 如何使用 (How to Use)
 
