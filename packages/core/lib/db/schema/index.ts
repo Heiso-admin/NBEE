@@ -7,3 +7,6 @@ export * from "./permissions";
 
 // system
 export * from "./system";
+
+// pages
+export * from "./features/pages";
