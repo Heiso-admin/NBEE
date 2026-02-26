@@ -3,10 +3,12 @@
 import { type Transaction } from "@heiso/core/lib/db";
 import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
 import { ensureTenantContext } from "@heiso/core/lib/db/rls";
-import { members, users as usersTable } from "@heiso/core/lib/db/schema";
+import { members, users as usersTable, apiKeys } from "@heiso/core/lib/db/schema";
 import {
   hashPassword,
   verifyPassword as verifyPasswordHash,
+  generateApiKey,
+  hashApiKey,
 } from "@heiso/core/lib/hash";
 import { signIn, signOut } from "@heiso/core/modules/auth/auth.config";
 import { ensureMemberReviewOnFirstLogin } from "@heiso/core/modules/auth/_server/user.service";
@@ -96,6 +98,7 @@ export async function signup(input: {
             name: name ?? existing.name ?? email.split("@")[0],
             password: hashed,
             mustChangePassword: false,
+            active: true,
             updatedAt: new Date(),
           })
           .where(eq(usersTable.id, existing.id))
@@ -109,6 +112,7 @@ export async function signup(input: {
             email,
             name: name ?? email.split("@")[0],
             password: await hashPassword(password),
+            active: true,
           })
           .returning({ id: usersTable.id, name: usersTable.name });
         user = created ?? null;
@@ -131,7 +135,48 @@ export async function signup(input: {
 
         if (tenantId) {
           // Ensure member exists and bind user
-          await ensureMemberReviewOnFirstLogin(email, user.id, tenantId, tx);
+          const member = await ensureMemberReviewOnFirstLogin(email, user.id, tenantId, tx);
+
+          // If this user is the tenant owner, generate an API Key
+          if (member?.isOwner) {
+            console.log("[DEBUG] User is Tenant Owner. Checking for existing API Key...");
+
+            // Check if API Key already exists for this tenant/user
+            const existingApiKey = await tx.query.apiKeys.findFirst({
+              where: (t, { and, eq }) =>
+                and(
+                  eq(t.tenantId, tenantId),
+                  eq(t.userId, user.id)
+                ),
+              columns: { id: true },
+            });
+
+            if (!existingApiKey) {
+              console.log("[DEBUG] No API Key found. Generating new API Key...");
+              const rawKey = generateApiKey();
+              const hashedKey = await hashApiKey(rawKey);
+              const truncatedKey = rawKey.length <= 12
+                ? rawKey
+                : `${rawKey.substring(0, 7)}...${rawKey.substring(rawKey.length - 4)}`;
+
+              await tx.insert(apiKeys).values({
+                tenantId: tenantId,
+                userId: user.id,
+                name: 'Default API Key',
+                key: hashedKey,
+                truncatedKey,
+              });
+
+              console.log(`[Signup] -----------------------------------------------------------`);
+              console.log(`[Signup] 🔑 Generated API Key for Tenant Owner (${email})`);
+              console.log(`[Signup] Tenant ID: ${tenantId}`);
+              console.log(`[Signup] Key: ${rawKey}`);
+              console.log(`[Signup] ⚠️  SAVE THIS KEY! It is hashed in DB and cannot be recovered.`);
+              console.log(`[Signup] -----------------------------------------------------------`);
+            } else {
+              console.log("[DEBUG] API Key already exists for this user. Skipping generation.");
+            }
+          }
         } else {
           // In CMS or other apps, missing tenantId during signup might be critical if not handled
           console.error("[ERROR] Signup: No tenantId found in non-core app mode.");

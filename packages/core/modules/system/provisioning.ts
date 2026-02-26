@@ -115,21 +115,20 @@ export async function seedDefaults(db: any, modules: string[], tenantId: string)
 
     if (existingNav.length > 0) {
         console.log(`[Provisioning] Navigations already exist for tenant ${tenantId}. Skipping.`);
-        return;
-    }
+    } else {
+        console.log('[Provisioning] Seeding "navigations" table for tenant:', tenantId);
+        await db.transaction(async (tx: any) => {
+            const navId = generateNavigationId();
+            const PLACEHOLDER_USER_ID = 'system_init';
 
-    console.log('[Provisioning] Seeding "navigations" table for tenant:', tenantId);
-    await db.transaction(async (tx: any) => {
-        const navId = generateNavigationId();
-        const PLACEHOLDER_USER_ID = 'system_init';
-
-        await tx.insert(navigations).values({
-            id: navId,
-            userId: PLACEHOLDER_USER_ID,
-            slug: 'main',
-            name: 'Main Menu',
-            description: 'Default system generated menu',
-            tenantId: tenantId,
+            await tx.insert(navigations).values({
+                id: navId,
+                userId: PLACEHOLDER_USER_ID,
+                slug: 'main',
+                name: 'Main Menu',
+                description: 'Default system generated menu',
+                tenantId: tenantId,
+            });
         });
-    });
+    }
 }
