@@ -1,0 +1,9 @@
+{
+    "name": "@heiso/lib",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./id-generator": "./id-generator/index.ts"
+    }
+}
