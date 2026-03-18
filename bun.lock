@@ -200,7 +200,8 @@
       "name": "@heiso/hive",
       "version": "0.1.0",
       "dependencies": {
-        "nanoid": "^5.1.6",
+        "@clack/prompts": "^1.1.0",
+        "@heiso/lib": "workspace:*",
       },
       "devDependencies": {
         "@heiso/biome-config": "workspace:*",
@@ -209,6 +210,10 @@
         "@types/node": "^20.12.7",
         "bun-types": "latest",
       },
+    },
+    "packages/lib": {
+      "name": "@heiso/lib",
+      "version": "0.0.0",
     },
     "packages/typescript-config": {
       "name": "@heiso/typescript-config",
@@ -381,6 +386,10 @@
 
     "@borewit/text-codec": ["@borewit/text-codec@0.2.1", "", {}, "sha512-k7vvKPbf7J2fZ5klGRD9AeKfUvojuZIQ3BT5u7Jfv+puwXkUBUT5PVyMDfJZpy30CBDXGMgw7fguK/lpOMBvgw=="],
 
+    "@clack/core": ["@clack/core@1.1.0", "", { "dependencies": { "sisteransi": "^1.0.5" } }, "sha512-SVcm4Dqm2ukn64/8Gub2wnlA5nS2iWJyCkdNHcvNHPIeBTGojpdJ+9cZKwLfmqy7irD4N5qLteSilJlE0WLAtA=="],
+
+    "@clack/prompts": ["@clack/prompts@1.1.0", "", { "dependencies": { "@clack/core": "1.1.0", "sisteransi": "^1.0.5" } }, "sha512-pkqbPGtohJAvm4Dphs2M8xE29ggupihHdy1x84HNojZuMtFsHiUlRvqD24tM2+XmI+61LlfNceM3Wr7U5QES5g=="],
+
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 
     "@date-fns/tz": ["@date-fns/tz@1.4.1", "", {}, "sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA=="],
@@ -494,6 +503,8 @@
     "@heiso/drizzle-config": ["@heiso/drizzle-config@workspace:packages/drizzle-config"],
 
     "@heiso/hive": ["@heiso/hive@workspace:packages/hive"],
+
+    "@heiso/lib": ["@heiso/lib@workspace:packages/lib"],
 
     "@heiso/typescript-config": ["@heiso/typescript-config@workspace:packages/typescript-config"],
 
