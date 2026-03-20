@@ -86,8 +86,8 @@ function LoginForm({
   const handleAuthMethod = (method: string, authEmail: string) => {
     switch (method) {
       case LoginMethodEnum.Both:
-        // 兩步驟：先密碼，再導向 /login/2steps
-        setTwoStep(true);
+        // TODO: 暫時跳過 OTP，待 OTP 功能完善後恢復
+        // setTwoStep(true);
         setStep(LoginStepEnum.Password);
         return;
 
