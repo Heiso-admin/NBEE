@@ -74,16 +74,17 @@ export default function AuthenticationForm({
     });
   };
 
-  const isCredentials = ["password", "credentials", "email"].includes(
+  const isCredentials = ["email", "both"].includes(
     loginMethod?.toLowerCase() || "",
   );
 
   const getLoginMethodLabel = (method: string) => {
     const m = method?.toLowerCase();
-    if (["password", "credentials"].includes(m)) return t("loginMethod.password");
+    if (m === "email") return t("loginMethod.password");
+    if (m === "both") return t("loginMethod.password");
     if (m === "otp") return t("loginMethod.otp");
     if (m === "2fa") return t("loginMethod.2fa");
-    return method; // Fallback for OAuth providers (e.g. "google")
+    return method;
   };
 
   return (

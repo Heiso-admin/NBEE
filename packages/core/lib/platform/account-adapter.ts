@@ -81,7 +81,7 @@ export async function createAccount(data: {
         name: data.name,
         password: data.password,
         role: (data.role as any) || "member",
-        status: (data.status as any) || "pending",
+        status: (data.status as any) || "invited",
         active: true,
       })
       .returning();
@@ -96,7 +96,7 @@ export async function createAccount(data: {
         name: data.name,
         password: data.password,
         role: (data.role as any) || "member",
-        status: (data.status as any) || "pending",
+        status: (data.status as any) || "invited",
         active: true,
       })
       .returning();

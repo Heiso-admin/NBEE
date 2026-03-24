@@ -13,6 +13,13 @@
 export type TenantTier = "BASIC" | "PREMIUM" | "ENTERPRISE" | "CUSTOM" | "INTERNAL_ADMIN";
 export type TenantStatus = "ACTIVE" | "SUSPENDED" | "ARCHIVED";
 
+export type ResolveError =
+    | 'DUPLICATE_DOMAIN'
+    | 'INCOMPLETE_DOMAIN_CONFIG'
+    | 'TENANT_DELETED'
+    | 'TENANT_SUSPENDED'
+    | 'TENANT_ARCHIVED';
+
 export interface TenantConfig {
     id: string;
     name: string;
@@ -20,12 +27,19 @@ export interface TenantConfig {
     customDomain?: string | null;
     tier: TenantTier;
     status: TenantStatus;
+    deletedAt?: Date | null;
     dbConnection?: string | null;
+}
+
+export interface AppSubscription {
+    modules: string[];
+    status: 'ACTIVE' | 'TRIAL';
 }
 
 export interface ResolvedTenant {
     tenant: TenantConfig | null;
-    subscriptions: Record<string, string[]>; // e.g., { 'cms': ['faq', 'blog'] }
+    subscriptions: Record<string, AppSubscription>;
+    error: ResolveError | null;
     source: "cache" | "db";
 }
 

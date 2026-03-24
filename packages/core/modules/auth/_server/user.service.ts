@@ -72,7 +72,7 @@ export async function getLoginMethod(accountId: string) {
       and(eq(t.id, accountId), isNull(t.deletedAt)),
   });
 
-  return account?.loginMethod ?? "both";
+  return account?.loginMethod ?? "email";
 }
 
 /**
@@ -256,6 +256,10 @@ export async function ensureInviteTokenSilently(accountId: string) {
 /**
  * 首次登入：設定帳號狀態為 active
  * 統一使用 accounts 表
+ *
+ * 若租戶 DB 中查無帳號（例如透過 Hive CLI 建立的帳號），
+ * 會從 Platform DB 拉取帳號資訊並 INSERT 至租戶 DB。
+ *
  * @param accountId - Account ID
  * @param tx - 可選的 transaction
  */
@@ -265,14 +269,81 @@ export async function ensureMemberOnFirstLogin(
 ) {
   const db = tx ?? (await getDynamicDb());
 
-  const account = await db.query.accounts.findFirst({
+  let account = await db.query.accounts.findFirst({
     where: (t, { eq, isNull }) =>
       and(eq(t.id, accountId), isNull(t.deletedAt)),
   });
 
-  if (!account) return null;
+  // 租戶 DB 查無帳號：嘗試從 Platform DB 拉取並建立
+  if (!account) {
+    const { getAccountByEmail } = await import(
+      "@heiso/core/lib/platform/account-adapter"
+    );
 
-  // 檢查是否有 owner
+    // 需要透過 email 查詢，但目前只有 accountId
+    // 使用 Platform adapter 的 getAccountById
+    const { getPlatformAccountAdapter } = await import(
+      "@heiso/core/lib/adapters"
+    );
+    const platformAdapter = getPlatformAccountAdapter();
+    if (!platformAdapter) return null;
+
+    const platformAccount = await platformAdapter.getAccountById(accountId);
+    if (!platformAccount) return null;
+
+    // 檢查是否有 owner（決定新帳號的角色）
+    const existingOwner = await db.query.accounts.findFirst({
+      where: (t, { eq, isNull }) =>
+        and(eq(t.role, "owner"), isNull(t.deletedAt)),
+      columns: { id: true },
+    });
+
+    const shouldBeOwner = !existingOwner;
+    let assignedRoleId: string | null = null;
+
+    if (shouldBeOwner) {
+      const adminRole = await db.query.roles.findFirst({
+        where: (t, { eq, isNull }) =>
+          and(eq(t.name, "Admin"), isNull(t.deletedAt)),
+        columns: { id: true },
+      });
+      if (adminRole) {
+        assignedRoleId = adminRole.id;
+      }
+    }
+
+    // INSERT 至租戶 DB
+    const [inserted] = await db
+      .insert(accounts)
+      .values({
+        id: platformAccount.id,
+        email: platformAccount.email,
+        name: platformAccount.name,
+        password: "",
+        active: true,
+        role: shouldBeOwner ? "owner" : "member",
+        roleId: assignedRoleId,
+        status: "active",
+        joinedAt: new Date(),
+      })
+      .returning({
+        id: accounts.id,
+        status: accounts.status,
+        role: accounts.role,
+      });
+
+    if (inserted) {
+      try {
+        const { revalidateTag } = await import("next/cache");
+        revalidateTag(`membership:${inserted.id}`, "default");
+      } catch {}
+    }
+    return inserted
+      ? { ...inserted, accountId: inserted.id }
+      : null;
+  }
+
+  // 租戶 DB 已有帳號：走既有的 status 更新邏輯
   const existingOwner = await db.query.accounts.findFirst({
     where: (t, { eq, isNull }) =>
       and(eq(t.role, "owner"), isNull(t.deletedAt)),
@@ -310,6 +381,12 @@ export async function ensureMemberOnFirstLogin(
       role: accounts.role,
     });
 
+  if (updated) {
+    try {
+      const { revalidateTag } = await import("next/cache");
+      revalidateTag(`membership:${updated.id}`, "default");
+    } catch {}
+  }
   return updated
     ? { ...updated, accountId: updated.id }
     : null;

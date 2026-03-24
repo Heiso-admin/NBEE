@@ -7,7 +7,7 @@ import { sendApprovedEmail, sendInviteUserEmail } from "@heiso/core/lib/email";
 import { generateInviteToken } from "@heiso/core/lib/id-generator";
 import { auth } from "@heiso/core/modules/auth/auth.config";
 import { eq, and, isNull } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { MemberStatus, type Member } from "../types";
 
 const isCoreMode = () => process.env.APP_MODE === "core";
@@ -175,6 +175,7 @@ async function invite({
       if (email) {
         await sendInvite({ email, inviteToken, isOwner: false });
       }
+      revalidateTag(`membership:${existingAccount.id}`, "default");
       revalidatePath("/account/team", "page");
       return existingAccount;
     }
@@ -203,6 +204,7 @@ async function invite({
     .returning();
 
   await sendInvite({ email, inviteToken, isOwner: false });
+  revalidateTag(`membership:${created.id}`, "default");
   revalidatePath("/account/team", "page");
   return created;
 }
@@ -234,6 +236,7 @@ async function updateMember({
     .set(accountUpdates)
     .where(eq(accounts.id, id));
 
+  revalidateTag(`membership:${id}`, "default");
   revalidatePath("/account/team", "page");
   return result;
 }
@@ -320,6 +323,7 @@ async function revokeInvite(id: string) {
     .set({ deletedAt: new Date(), updatedAt: new Date() })
     .where(eq(accounts.id, id));
 
+  revalidateTag(`membership:${id}`, "default");
   revalidatePath("/account/team", "page");
 }
 
@@ -335,6 +339,7 @@ async function leaveTeam(id: string) {
     .set({ deletedAt: new Date(), updatedAt: new Date() })
     .where(eq(accounts.id, id));
 
+  revalidateTag(`membership:${id}`, "default");
   revalidatePath("/account/team", "page");
 }
 
@@ -385,6 +390,7 @@ async function addMember({
       .where(eq(accounts.id, existingAccount.id))
       .returning();
 
+    revalidateTag(`membership:${existingAccount.id}`, "default");
     revalidatePath("/account/team", "page");
     return { member: updated };
   }
@@ -402,6 +408,7 @@ async function addMember({
     })
     .returning();
 
+  revalidateTag(`membership:${account.id}`, "default");
   revalidatePath("/account/team", "page");
   return { member: account };
 }
@@ -469,6 +476,8 @@ async function transferOwnership({
       .where(eq(accounts.id, currentOwnerId));
   });
 
+  revalidateTag(`membership:${newOwnerId}`, "default");
+  revalidateTag(`membership:${currentOwnerId}`, "default");
   revalidatePath("/account/team");
 
   return { success: true };

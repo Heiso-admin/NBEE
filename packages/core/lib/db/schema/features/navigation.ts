@@ -2,12 +2,14 @@ import { generateId, generateNavigationId } from "@heiso/core/lib/id-generator";
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  check,
   index,
   integer,
   pgTable,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import {
   createInsertSchema,
   createSelectSchema,
@@ -64,6 +66,8 @@ export const navigationMenus = pgTable(
     index("navigation_menus_slug_idx").on(table.slug),
     index("navigation_menus_parent_id_idx").on(table.parentId),
     index("navigation_menus_deleted_at_idx").on(table.deletedAt),
+    check("navigation_menus_link_type_check", sql`${table.linkType} IN ('none', 'link', 'pages', 'articles')`),
+    check("navigation_menus_style_check", sql`${table.style} IN ('none', 'button')`),
   ],
 );
 
