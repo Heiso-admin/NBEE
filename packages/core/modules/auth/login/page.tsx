@@ -77,7 +77,8 @@ export default async function Page({
         const host = h.get("host") || "";
         const resolved = await tenantAdapter.resolveTenant(host);
 
-        const cmsModules = resolved.subscriptions['cms'] || [];
+        const cmsSubscription = resolved.subscriptions['cms'];
+        const cmsModules = cmsSubscription?.modules || [];
         const modules = cmsModules.length > 0 ? cmsModules : ["cms"];
 
         const dbUrl = resolved.tenant?.dbConnection || process.env.DATABASE_URL;

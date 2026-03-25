@@ -82,6 +82,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             .where(
               and(eq(accounts.id, existingAccount.id), isNull(accounts.deletedAt)),
             );
+
+          const { revalidateTag } = await import("next/cache");
+          revalidateTag(`account:${email}`, "default");
+          revalidateTag(`membership:${existingAccount.id}`, "default");
         }
 
         return true;

@@ -1,11 +1,13 @@
 import {
   boolean,
+  check,
   index,
   json,
   pgTable,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import {
   createInsertSchema,
   createSelectSchema,
@@ -48,6 +50,7 @@ export const settings = pgTable(
     index("settings_group_idx").on(table.group),
     index("settings_is_key_idx").on(table.isKey),
     index("settings_deleted_at_idx").on(table.deletedAt),
+    check("settings_group_check", sql`${table.group} IN ('system', 'general', 'site')`),
   ],
 );
 

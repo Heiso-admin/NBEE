@@ -2,11 +2,13 @@ import { generateAccountId } from "@heiso/core/lib/id-generator";
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  check,
   index,
   pgTable,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import {
   createInsertSchema,
   createSelectSchema,
@@ -44,7 +46,7 @@ export const accounts = pgTable(
 
     // 登入相關
     lastLoginAt: timestamp("last_login_at"),
-    loginMethod: varchar("login_method", { length: 20 }).default("password"),
+    loginMethod: varchar("login_method", { length: 20 }).default("email"),
 
     // 2FA
     twoFactorEnabled: boolean("two_factor_enabled").default(false),
@@ -63,10 +65,10 @@ export const accounts = pgTable(
     // 自訂權限角色（可選）
     roleId: varchar("role_id", { length: 20 }).references(() => roles.id),
 
-    // 成員狀態 (active/suspended/pending)
+    // 成員狀態 (active/suspended/invited)
     status: varchar("status", { length: 20 })
       .notNull()
-      .default("pending")
+      .default("invited")
       .$type<MemberStatus>(),
 
     // === 邀請相關 ===
@@ -88,6 +90,9 @@ export const accounts = pgTable(
     index("accounts_status_idx").on(table.status),
     index("accounts_invite_token_idx").on(table.inviteToken),
     index("accounts_last_login_idx").on(table.lastLoginAt),
+    check("accounts_role_check", sql`${table.role} IN ('owner', 'admin', 'member')`),
+    check("accounts_status_check", sql`${table.status} IN ('invited', 'active', 'inactive', 'suspended')`),
+    check("accounts_login_method_check", sql`${table.loginMethod} IN ('both', 'otp', 'email', 'sso')`),
   ],
 );
 

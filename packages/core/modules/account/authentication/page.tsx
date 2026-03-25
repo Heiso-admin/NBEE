@@ -12,8 +12,7 @@ export default async function AuthenticationPage() {
 
     const user = await getAccountByEmail(session.user.email);
 
-    // If loginMethod is null or undefined, treat as "credentials" (Email/Password)
-    const loginMethod = user?.loginMethod || "credentials";
+    const loginMethod = user?.loginMethod || "email";
 
     return <AuthenticationForm loginMethod={loginMethod} />;
 }
