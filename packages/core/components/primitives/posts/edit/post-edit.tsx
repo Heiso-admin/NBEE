@@ -222,6 +222,7 @@ export function PostEdit({
   baseLink,
   extraTabs,
   afterFirstSaveRedirect,
+  afterPublishRedirect,
   extraDirty,
   editorServiceActions,
   templateDialogServiceActions,
@@ -239,6 +240,7 @@ export function PostEdit({
     content: React.ReactNode;
   }>;
   afterFirstSaveRedirect?: (id: string) => string;
+  afterPublishRedirect?: (firstCategoryId?: string) => string;
   extraDirty?: boolean;
   editorServiceActions?: BlockEditorServiceActions;
   templateDialogServiceActions?: TemplateDialogServiceActions;
@@ -589,9 +591,11 @@ export function PostEdit({
         toast.success(t("postPublished", { item: itemLabel }));
 
         const firstCategoryId = payload.categoryIds[0];
-        const target = firstCategoryId
-          ? `${baseLink}/${firstCategoryId}/post`
-          : `${baseLink}/post`;
+        const target = afterPublishRedirect
+          ? afterPublishRedirect(firstCategoryId)
+          : firstCategoryId
+            ? `${baseLink}/${firstCategoryId}/post`
+            : `${baseLink}/post`;
         router.replace(target);
         router.refresh();
       });
@@ -626,8 +630,8 @@ export function PostEdit({
         const target = afterFirstSaveRedirect
           ? afterFirstSaveRedirect(post.id)
           : firstCategoryId
-            ? `/dashboard/pages/${firstCategoryId}/post/${post.id}/edit`
-            : `/dashboard/pages/post/${post.id}/edit`;
+            ? `${baseLink}/${firstCategoryId}/post/${post.id}/edit`
+            : `${baseLink}/post/${post.id}/edit`;
         router.replace(target);
         router.refresh();
       });

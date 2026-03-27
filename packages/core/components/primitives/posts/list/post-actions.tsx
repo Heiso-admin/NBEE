@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@heiso/core/components/ui/dropdown-menu";
-import { Copy, Eye, EyeOff, MoreHorizontal, Trash2 } from "lucide-react";
+import { Copy, Edit2, ExternalLink, Eye, EyeOff, MoreHorizontal, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -26,6 +26,9 @@ interface PostActionsProps {
   onToggleStatus: (id: string, status: "hidden" | "draft") => Promise<void>;
   isPending: boolean;
   editLink: string;
+  detailLink?: string;
+  frontendBaseUnconfigured?: boolean;
+  previewSecretUnconfigured?: boolean;
 }
 
 export function PostActions({
@@ -34,6 +37,10 @@ export function PostActions({
   onDuplicate,
   onToggleStatus,
   isPending: isGlobalPending,
+  editLink,
+  detailLink,
+  frontendBaseUnconfigured,
+  previewSecretUnconfigured,
 }: PostActionsProps) {
   const t = useTranslations("components.posts.list");
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -88,6 +95,37 @@ export function PostActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild className="cursor-pointer">
+            <a href={editLink}>
+              <Edit2 className="mr-0.5 h-4 w-4" />
+              {t("edit")}
+            </a>
+          </DropdownMenuItem>
+          {detailLink && (
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <a href={detailLink} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="mr-0.5 h-4 w-4" />
+                {t("preview")}
+              </a>
+            </DropdownMenuItem>
+          )}
+          {!detailLink && frontendBaseUnconfigured && (
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <a href="/dashboard/settings/site">
+                <ExternalLink className="mr-0.5 h-4 w-4" />
+                {t("previewSetupRequired")}
+              </a>
+            </DropdownMenuItem>
+          )}
+          {!detailLink && previewSecretUnconfigured && (
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <a href="/dashboard/settings/site">
+                <ExternalLink className="mr-0.5 h-4 w-4" />
+                {t("previewSecretRequired")}
+              </a>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={handleToggleStatus}
             disabled={isTogglePending}
