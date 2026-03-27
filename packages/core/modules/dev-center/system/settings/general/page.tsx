@@ -65,6 +65,11 @@ export type SiteSetting = {
     logo?: string;
     ogImage?: string;
   };
+  deployment?: {
+    vercel_project_id?: string;
+    revalidate_secret?: string;
+    preview_secret?: string;
+  };
   system_oauth?: string;
 };
 

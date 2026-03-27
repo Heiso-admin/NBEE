@@ -80,16 +80,28 @@ export function PostTable({
   const itemLabel = translationItem || tPosts("item");
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  const frontendBase =
+    site?.basic?.base_url ??
+    (site?.basic?.domain ? `https://${site.basic.domain}` : null);
+  const previewSecret = site?.deployment?.preview_secret;
+
   const defaultBuildLink = useCallback(
     (post: PostRow) => {
       const base = linkBase ?? "./post";
+
+      const detail =
+        frontendBase && previewSecret
+          ? `${frontendBase.replace(/\/$/, "")}/api/preview?id=${post.id}&secret=${previewSecret}`
+          : null;
+
       return {
         view: `${base}/${post.id}`,
         edit: `${base}/${post.id}/edit`,
         visual: `${base}/${post.id}/visual`,
+        detail,
       };
     },
-    [linkBase],
+    [linkBase, frontendBase, previewSecret],
   );
 
   const _computeStatus = useCallback((post: PostRow): PostStatus => {
@@ -130,7 +142,7 @@ export function PostTable({
           const links = defaultBuildLink(post);
           return (
             <div className="flex items-center gap-2">
-              <Link href={links.view} className="truncate">
+              <Link href={links.edit} className="truncate">
                 {post.title}
               </Link>
               {post.isPublished && post.status !== PostStatus.Hidden && (
@@ -209,17 +221,7 @@ export function PostTable({
           const links = defaultBuildLink(post);
           return (
             <div className="w-full flex items-center justify-center gap-0.5">
-              {/* <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={links.edit}
-                    className="flex items-center cursor-pointer p-1 hover:bg-muted rounded"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent>編輯</TooltipContent>
-              </Tooltip> */}
+              {/* Edit icon 已移至 DropdownMenu */}
               {showVisualEditor && (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -240,6 +242,9 @@ export function PostTable({
                 onToggleStatus={onToggleStatus}
                 isPending={isPending}
                 editLink={links.edit}
+                detailLink={links.detail ?? undefined}
+                frontendBaseUnconfigured={!frontendBase}
+                previewSecretUnconfigured={!!frontendBase && !previewSecret}
               />
             </div>
           );
