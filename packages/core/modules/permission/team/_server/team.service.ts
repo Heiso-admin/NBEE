@@ -1,7 +1,7 @@
 "use server";
 
 import { settings } from "@heiso/core/config/settings";
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { accounts } from "@heiso/core/lib/db/schema";
 import { sendApprovedEmail, sendInviteUserEmail } from "@heiso/core/lib/email";
 import { generateInviteToken } from "@heiso/core/lib/id-generator";
@@ -15,7 +15,6 @@ import { MemberStatus, type Member } from "../types";
  * 使用 accounts 表
  */
 async function getTeamMembers(): Promise<Member[]> {
-  const db = await getDynamicDb();
 
   // 統一從 accounts 表取得成員資格
   const accountList = await db.query.accounts.findMany({
@@ -65,7 +64,6 @@ async function invite({
   roleId?: string | null;
   accountId?: string;
 }) {
-  const db = await getDynamicDb();
   const inviteToken = generateInviteToken();
   const inviteExpiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7 days
 
@@ -170,7 +168,6 @@ async function updateMember({
     status?: 'invited' | 'active' | 'inactive' | 'suspended';
   };
 }) {
-  const db = await getDynamicDb();
 
   const accountUpdates: Partial<typeof accounts.$inferInsert> = {
     ...data,
@@ -226,7 +223,6 @@ async function sendApproved({ email }: { email: string }) {
  * 統一使用 accounts 表
  */
 async function resendInvite(id: string) {
-  const db = await getDynamicDb();
   const inviteToken = generateInviteToken();
   const inviteExpiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7 days
 
@@ -262,7 +258,6 @@ async function resendInvite(id: string) {
  * 統一使用 accounts 表（軟刪除）
  */
 async function revokeInvite(id: string) {
-  const db = await getDynamicDb();
 
   await db
     .update(accounts)
@@ -278,7 +273,6 @@ async function revokeInvite(id: string) {
  * 統一使用 accounts 表（軟刪除）
  */
 async function leaveTeam(id: string) {
-  const db = await getDynamicDb();
 
   await db
     .update(accounts)
@@ -302,7 +296,6 @@ async function addMember({
   roleId: string;
   initialPassword?: string;
 }) {
-  const db = await getDynamicDb();
   const { hashPassword } = await import("@heiso/core/lib/hash");
 
   const existingAccount = await db.query.accounts.findFirst({
@@ -370,7 +363,6 @@ async function transferOwnership({
   newOwnerId: string;
   currentOwnerId: string;
 }) {
-  const db = await getDynamicDb();
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error("Unauthorized");
@@ -442,7 +434,6 @@ async function resetMemberPassword({
   targetMemberId: string;
   newPassword: string;
 }) {
-  const db = await getDynamicDb();
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error("UNAUTHORIZED");

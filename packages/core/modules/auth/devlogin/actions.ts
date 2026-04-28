@@ -5,64 +5,46 @@ import TwoFactorEmail from "@heiso/core/emails/2fa";
 import { sendEmail } from "@heiso/core/lib/email";
 import { ALLOWED_DEV_EMAILS } from "@heiso/core/modules/auth/auth.config";
 import { getAccountWithPasswordByEmail } from "@heiso/core/modules/auth/_server/user.service";
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { accounts } from "@heiso/core/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-const isCoreMode = () => process.env.APP_MODE === "core";
-
 /**
  * 確保 DevLogin 帳號存在
- * Core 模式：使用本地 accounts 表
- * APPS 模式：使用 Hive 服務
  */
 async function ensureDevAccountExists(email: string) {
-  // 先嘗試查找現有帳號
   const existing = await getAccountWithPasswordByEmail(email);
   if (existing) {
     return existing;
   }
 
-  // 帳號不存在，建立帳號
   const { hashPassword } = await import("@heiso/core/lib/hash");
   const { generateId } = await import("@heiso/core/lib/id-generator");
 
   const randomPassword = await hashPassword(generateId(undefined, 32));
   const displayName = email === "pm@heiso.io" ? "Core PM" : "Core Dev";
 
-  if (isCoreMode()) {
-    // Core 模式：直接建立本地帳號
-    const db = await getDynamicDb();
-    const [account] = await db
-      .insert(accounts)
-      .values({
-        email,
-        name: displayName,
-        password: randomPassword,
-        role: "owner",
-        status: "active",
-        active: true,
-      })
-      .returning();
+  const [account] = await db
+    .insert(accounts)
+    .values({
+      email,
+      name: displayName,
+      password: randomPassword,
+      role: "owner",
+      status: "active",
+      active: true,
+    })
+    .returning();
 
-    return {
-      id: account.id,
-      email: account.email,
-      name: account.name,
-      password: account.password,
-      active: account.active,
-      avatar: account.avatar,
-      lastLoginAt: account.lastLoginAt,
-    };
-  } else {
-    // APPS 模式：使用 Platform Adapter
-    const { getPlatformAccountAdapter } = await import("@heiso/core/lib/adapters");
-    const adapter = getPlatformAccountAdapter();
-    if (!adapter) {
-      throw new Error("PlatformAccountAdapter not registered");
-    }
-    return adapter.createDevAccount(email, randomPassword, displayName);
-  }
+  return {
+    id: account.id,
+    email: account.email,
+    name: account.name,
+    password: account.password,
+    active: account.active,
+    avatar: account.avatar,
+    lastLoginAt: account.lastLoginAt,
+  };
 }
 
 // Generate 6-digit OTP code
@@ -101,10 +83,7 @@ export async function sendDevOTP(email: string): Promise<{
 
     // 3. Generate OTP
     const { user2faCode } = await import("@heiso/core/lib/db/schema");
-    const { getDynamicDb } = await import("@heiso/core/lib/db/dynamic");
-    const { and, eq, lt } = await import("drizzle-orm");
-
-    const db = await getDynamicDb();
+    const { and, lt } = await import("drizzle-orm");
 
     // Clean up expired OTPs for this account
     const now = new Date();
@@ -185,10 +164,7 @@ export async function verifyDevOTP(
 
   try {
     const { user2faCode } = await import("@heiso/core/lib/db/schema");
-    const { getDynamicDb } = await import("@heiso/core/lib/db/dynamic");
-    const { and, eq, gt } = await import("drizzle-orm");
-
-    const db = await getDynamicDb();
+    const { and, gt } = await import("drizzle-orm");
 
     // Find account
     const account = await getAccountWithPasswordByEmail(email);

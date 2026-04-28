@@ -1,6 +1,6 @@
 "use server";
 
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import type { TPermission } from "@heiso/core/lib/db/schema";
 import { roleMenus } from "@heiso/core/lib/db/schema";
 import { auth } from "@heiso/core/modules/auth/auth.config";
@@ -23,7 +23,6 @@ async function getAccount() {
   const accountId = session?.user?.id;
   if (!accountId) throw new Error(UNAUTHORIZED_ERROR);
 
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     columns: {
@@ -46,7 +45,6 @@ async function getMyMembership() {
   const accountId = session?.user?.id;
   if (!accountId) throw new Error(UNAUTHORIZED_ERROR);
 
-  const db = await getDynamicDb();
   const platformStaff = session?.user?.platformStaff ?? false;
 
   const account = await db.query.accounts.findFirst({
@@ -97,7 +95,6 @@ async function getMyAllowedMenuIds({
     return [];
   }
 
-  const db = await getDynamicDb();
 
   // Query role_menus to get allowed menu IDs
   const roleMenusData = await db
@@ -120,7 +117,6 @@ async function getMyOrgPermissions({
 }: AccessParams): Promise<Pick<TPermission, "resource" | "action">[]> {
   if (!roleId) return [];
 
-  const db = await getDynamicDb();
 
   if (fullAccess) {
     return db.query.permissions.findMany({

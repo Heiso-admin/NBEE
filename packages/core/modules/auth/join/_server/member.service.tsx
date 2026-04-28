@@ -1,6 +1,6 @@
 "use server";
 
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { accounts } from "@heiso/core/lib/db/schema";
 import { auth } from "@heiso/core/modules/auth/auth.config";
 import { and, eq, isNull } from "drizzle-orm";
@@ -10,7 +10,6 @@ import { cookies } from "next/headers";
  * 統一使用 accounts 表
  */
 async function getMembership() {
-  const db = await getDynamicDb();
   const session = await auth();
   const accountId = session?.user?.id;
 
@@ -55,7 +54,6 @@ async function getMembership() {
  * 統一使用 accounts 表
  */
 async function getInviteToken({ token }: { token: string }) {
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     where: (t, { eq, isNull }) =>
@@ -83,7 +81,6 @@ async function getInviteToken({ token }: { token: string }) {
  * 統一使用 accounts 表
  */
 async function join(memberId: string) {
-  const db = await getDynamicDb();
 
   const result = await db
     .update(accounts)
@@ -104,7 +101,6 @@ async function join(memberId: string) {
  * 統一使用 accounts 表
  */
 async function decline(id: string) {
-  const db = await getDynamicDb();
 
   return await db
     .update(accounts)
@@ -144,7 +140,6 @@ export async function updateBasicProfile({
     throw new Error("Unauthorized");
   }
 
-  const db = await getDynamicDb();
 
   const updates: Record<string, any> = { updatedAt: new Date() };
 

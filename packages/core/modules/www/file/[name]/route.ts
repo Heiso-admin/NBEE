@@ -1,10 +1,9 @@
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ name: string }> },
 ) {
-  const db = await getDynamicDb();
   const { name } = await params;
   if (!name) {
     throw new Error("Missing name parameter");

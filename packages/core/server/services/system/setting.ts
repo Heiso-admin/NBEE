@@ -1,12 +1,11 @@
 "use server";
 
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import type { Settings } from "@heiso/core/types/system";
 
 export async function getSystemSettings(
   withoutKey: boolean = false,
 ): Promise<Settings> {
-  const db = await getDynamicDb();
   const rows = await db.query.settings.findMany({
     columns: { name: true, value: true },
     where: (fields, { and, eq, isNull }) =>

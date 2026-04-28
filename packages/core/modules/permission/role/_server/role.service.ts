@@ -1,6 +1,6 @@
 "use server";
 
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import type {
   TMenu,
   TPermission,
@@ -22,7 +22,6 @@ export type Role = TRole & {
 };
 
 async function getRoles(): Promise<Role[]> {
-  const db = await getDynamicDb();
   const result = await db.query.roles.findMany({
     with: {
       menus: {
@@ -44,14 +43,12 @@ async function getRoles(): Promise<Role[]> {
 }
 
 async function createRole(data: TRoleInsert) {
-  const db = await getDynamicDb();
   const result = await db.insert(roles).values(data);
   revalidatePath("/account/role", "page");
   return result;
 }
 
 async function updateRole(id: string, data: TRoleUpdate) {
-  const db = await getDynamicDb();
   const result = await db
     .update(roles)
     .set({ ...data, updatedAt: new Date() })
@@ -62,7 +59,6 @@ async function updateRole(id: string, data: TRoleUpdate) {
 }
 
 async function deleteRole({ id }: { id: string }) {
-  const db = await getDynamicDb();
   const result = await db
     .update(roles)
     .set({

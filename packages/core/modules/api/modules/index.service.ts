@@ -1,4 +1,4 @@
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { apiKeyAccessLogs, apiKeys } from "@heiso/core/lib/db/schema";
 import { hashApiKey } from "@heiso/core/lib/hash";
 import { eq } from "drizzle-orm";
@@ -13,7 +13,6 @@ export async function verifyApiKey(key: string): Promise<{
     requests: number;
   } | null;
 }> {
-  const db = await getDynamicDb();
 
   if (!key) {
     return { valid: false };
@@ -80,7 +79,6 @@ export async function storeApiKeyAccessLog(params: {
   responseTime: number;
   errorMessage?: string;
 }): Promise<void> {
-  const db = await getDynamicDb();
   try {
     await db.insert(apiKeyAccessLogs).values({
       apiKeyId: params.apiKeyId,

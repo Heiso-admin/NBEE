@@ -2,7 +2,7 @@
 
 import { settings } from "@heiso/core/config/settings";
 import TwoFactorEmail from "@heiso/core/emails/2fa";
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { user2faCode } from "@heiso/core/lib/db/schema";
 import { sendEmail } from "@heiso/core/lib/email";
 import { and, eq, gt, lt } from "drizzle-orm";
@@ -40,7 +40,6 @@ export async function generateOTP(email: string): Promise<OTPGenerationResult> {
       };
     }
 
-    const db = await getDynamicDb();
 
     // 檢查使用者是否為 active 成員
     const member = await getMember(account.id);
@@ -115,7 +114,6 @@ export async function verifyOTP(
   code: string,
 ): Promise<OTPVerificationResult> {
   try {
-    const db = await getDynamicDb();
     // 查找用户
     const account = await getAccountByEmail(email);
 
@@ -168,7 +166,6 @@ export async function verifyOTP(
  */
 export async function cleanupExpiredOTPs(accountId?: string): Promise<void> {
   try {
-    const db = await getDynamicDb();
     const now = new Date();
 
     if (accountId) {
@@ -192,7 +189,6 @@ export async function cleanupExpiredOTPs(accountId?: string): Promise<void> {
  */
 export async function hasValidOTP(email: string): Promise<boolean> {
   try {
-    const db = await getDynamicDb();
     const account = await getAccountByEmail(email);
 
     if (!account) {
@@ -219,7 +215,6 @@ export async function hasValidOTP(email: string): Promise<boolean> {
  */
 export async function getOTPStatus(email: string) {
   try {
-    const db = await getDynamicDb();
     const account = await getAccountByEmail(email);
 
     if (!account) {

@@ -2,10 +2,9 @@ import "dotenv-flow/config";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { closeDb } from "@heiso/core/lib/db";
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 
 async function getAllPermissions() {
-  const db = await getDynamicDb();
   const permissions = await db.query.permissions.findMany({
     columns: {
       id: true,

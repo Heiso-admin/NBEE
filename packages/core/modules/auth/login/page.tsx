@@ -12,8 +12,7 @@ import {
   getMember,
   getAccountByEmail,
 } from "../_server/user.service";
-import { headers } from "next/headers";
-import { provisionTenantDb, seedDefaults } from "@heiso/core/modules/system/provisioning";
+import { seedDefaults } from "@heiso/core/modules/system/provisioning";
 import { db } from "@heiso/core/lib/db";
 
 export type OAuthDataType = {
@@ -54,39 +53,8 @@ export default async function Page({
     }
 
     if (needsProvisioning) {
-      // In Core Mode, skip Hive provisioning to avoid dependencies
-      if (process.env.APP_MODE === "core") {
-        console.warn("[Login] Tenant uninitialized in Core Mode. Seeding defaults locally...");
-
-        // In Core Mode, we pass empty modules list because seedDefaults handles CORE_DEFAULT_MENUS internally
-        await seedDefaults(db, [], tenantId);
-      } else {
-        console.log(`[Login] Tenant ${tenantId} uninitialized. Provisioning via Hive...`);
-
-        const { getTenantAdapter } = await import("@heiso/core/lib/adapters");
-        const tenantAdapter = getTenantAdapter();
-
-        if (!tenantAdapter) {
-          console.error("[Login] Cannot provision: TenantAdapter not registered.");
-          return;
-        }
-
-        const h = await headers();
-        const host = h.get("host") || "";
-        const resolved = await tenantAdapter.resolveTenant(host);
-
-        const cmsSubscription = resolved.subscriptions['cms'];
-        const cmsModules = cmsSubscription?.modules || [];
-        const modules = cmsModules.length > 0 ? cmsModules : ["cms"];
-
-        const dbUrl = resolved.tenant?.dbConnection || process.env.DATABASE_URL;
-
-        if (dbUrl) {
-          await provisionTenantDb(dbUrl, modules, tenantId);
-        } else {
-          console.error("[Login] Cannot provision: No DATABASE_URL found.");
-        }
-      }
+      console.warn("[Login] Tenant uninitialized. Seeding defaults locally...");
+      await seedDefaults(db, [], tenantId);
     }
 
     // Re-check owner status after provisioning

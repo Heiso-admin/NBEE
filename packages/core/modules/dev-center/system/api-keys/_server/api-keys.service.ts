@@ -1,6 +1,6 @@
 "use server";
 
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import type { TPublicApiKey } from "@heiso/core/lib/db/schema";
 import { apiKeys } from "@heiso/core/lib/db/schema";
 import { generateApiKey, hashApiKey } from "@heiso/core/lib/hash";
@@ -20,7 +20,6 @@ type TApiKeyWithKeyPrefix = TPublicApiKey & { keyPrefix: string };
 export async function getApiKeysList(
   options: { search?: string; start?: number; limit?: number } = {},
 ) {
-  const db = await getDynamicDb();
   const session = await auth();
   if (!session?.user?.id) {
     return { apiKeys: [], total: 0 };
@@ -82,7 +81,6 @@ export async function getApiKeysList(
 export async function getApiKey(
   id: string,
 ): Promise<TApiKeyWithKeyPrefix | null> {
-  const db = await getDynamicDb();
   const session = await auth();
   if (!session?.user?.id) {
     return null;
@@ -148,7 +146,6 @@ export async function createApiKey(data: CreateApiKeyInput): Promise<{
   apiKey?: TApiKeyWithKeyPrefix & { key: string };
   error?: string;
 }> {
-  const db = await getDynamicDb();
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
@@ -203,7 +200,6 @@ export async function updateApiKey(
   id: string,
   data: UpdateApiKeyInput,
 ): Promise<{ success: boolean; data?: TApiKeyWithKeyPrefix; error?: string }> {
-  const db = await getDynamicDb();
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
@@ -258,7 +254,6 @@ export async function updateApiKey(
 export async function deleteApiKey(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
-  const db = await getDynamicDb();
   const session = await auth();
   if (!session?.user?.id) {
     return { success: false, error: "Unauthorized" };
@@ -298,7 +293,6 @@ export async function verifyApiKey(key: string): Promise<{
   accountId?: string;
   apiKeyId?: string;
 }> {
-  const db = await getDynamicDb();
   if (!key) {
     return { valid: false };
   }
