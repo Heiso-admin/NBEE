@@ -5,43 +5,13 @@ import { type Transaction } from "@heiso/core/lib/db";
 import { accounts } from "@heiso/core/lib/db/schema";
 import { generateInviteToken } from "@heiso/core/lib/id-generator";
 import { and, eq, isNull } from "drizzle-orm";
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 
-/**
- * 檢查是否為 Core 模式
- */
-const isCoreMode = () => process.env.APP_MODE === "core";
-
-/**
- * HiveAccount 類型定義
- */
-export type HiveAccount = {
-  id: string;
-  email: string;
-  name: string;
-  password: string;
-  active: boolean;
-  avatar?: string | null;
-  lastLoginAt?: Date | null;
-};
-
-/**
- * 取得 PlatformAccountAdapter（僅在非 Core 模式時使用）
- */
-async function getPlatformAdapter() {
-  const { getPlatformAccountAdapter } = await import("@heiso/core/lib/adapters");
-  const adapter = getPlatformAccountAdapter();
-  if (!adapter) {
-    throw new Error("PlatformAccountAdapter not registered");
-  }
-  return adapter;
-}
 
 /**
  * 取得所有帳號 (用於管理介面)
  */
 export async function getAccounts() {
-  const db = await getDynamicDb();
 
   const result = await db.query.accounts.findMany({
     where: (t, { isNull }) => isNull(t.deletedAt),
@@ -54,7 +24,6 @@ export async function getAccounts() {
  * @param accountId - Account ID
  */
 export async function getLoginMethod(accountId: string) {
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     columns: { loginMethod: true },
@@ -71,7 +40,6 @@ export async function getLoginMethod(accountId: string) {
  * @param accountId - Account ID
  */
 export async function getMemberStatus(accountId: string) {
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     columns: { status: true },
@@ -87,7 +55,6 @@ export async function getMemberStatus(accountId: string) {
  * @param accountId - Account ID
  */
 export async function getMember(accountId: string) {
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     columns: {
@@ -117,7 +84,6 @@ export async function getMember(accountId: string) {
  * @param accountId - Account ID
  */
 export async function getMemberInviteToken(accountId: string) {
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     columns: { inviteToken: true },
@@ -132,7 +98,6 @@ export async function getMemberInviteToken(accountId: string) {
  * @param accountId - Account ID
  */
 export async function getAccount(accountId: string) {
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     where: (t, { eq, isNull }) =>
@@ -159,7 +124,6 @@ export async function resendInviteByEmail(email: string) {
  * @param accountId - Account ID
  */
 export async function resendInviteByAccountId(accountId: string) {
-  const db = await getDynamicDb();
   const inviteToken = generateInviteToken();
   const inviteExpiredAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 7 days
 
@@ -197,7 +161,6 @@ export async function resendInviteByAccountId(accountId: string) {
  * @param accountId - Account ID
  */
 export async function ensureInviteTokenSilently(accountId: string) {
-  const db = await getDynamicDb();
   const now = Date.now();
 
   const account = await db.query.accounts.findFirst({
@@ -246,84 +209,18 @@ export async function ensureMemberOnFirstLogin(
   accountId: string,
   tx?: Transaction,
 ) {
-  const db = tx ?? (await getDynamicDb());
+  const d = tx ?? db;
 
-  let account = await db.query.accounts.findFirst({
+  let account = await d.query.accounts.findFirst({
     where: (t, { eq, isNull }) =>
       and(eq(t.id, accountId), isNull(t.deletedAt)),
   });
 
-  // 租戶 DB 查無帳號：嘗試從 Platform DB 拉取並建立
   if (!account) {
-    const { getAccountByEmail } = await import(
-      "@heiso/core/lib/platform/account-adapter"
-    );
-
-    // 需要透過 email 查詢，但目前只有 accountId
-    // 使用 Platform adapter 的 getAccountById
-    const { getPlatformAccountAdapter } = await import(
-      "@heiso/core/lib/adapters"
-    );
-    const platformAdapter = getPlatformAccountAdapter();
-    if (!platformAdapter) return null;
-
-    const platformAccount = await platformAdapter.getAccountById(accountId);
-    if (!platformAccount) return null;
-
-    // 檢查是否有 owner（決定新帳號的角色）
-    const existingOwner = await db.query.accounts.findFirst({
-      where: (t, { eq, isNull }) =>
-        and(eq(t.role, "owner"), isNull(t.deletedAt)),
-      columns: { id: true },
-    });
-
-    const shouldBeOwner = !existingOwner;
-    let assignedRoleId: string | null = null;
-
-    if (shouldBeOwner) {
-      const adminRole = await db.query.roles.findFirst({
-        where: (t, { eq, isNull }) =>
-          and(eq(t.name, "Admin"), isNull(t.deletedAt)),
-        columns: { id: true },
-      });
-      if (adminRole) {
-        assignedRoleId = adminRole.id;
-      }
-    }
-
-    // INSERT 至租戶 DB
-    const [inserted] = await db
-      .insert(accounts)
-      .values({
-        id: platformAccount.id,
-        email: platformAccount.email,
-        name: platformAccount.name,
-        password: "",
-        active: true,
-        role: shouldBeOwner ? "owner" : "member",
-        roleId: assignedRoleId,
-        status: "active",
-        joinedAt: new Date(),
-      })
-      .returning({
-        id: accounts.id,
-        status: accounts.status,
-        role: accounts.role,
-      });
-
-    if (inserted) {
-      try {
-        const { revalidateTag } = await import("next/cache");
-        revalidateTag(`membership:${inserted.id}`, "default");
-      } catch {}
-    }
-    return inserted
-      ? { ...inserted, accountId: inserted.id }
-      : null;
+    return null;
   }
 
-  // 租戶 DB 已有帳號：走既有的 status 更新邏輯
-  const existingOwner = await db.query.accounts.findFirst({
+  const existingOwner = await d.query.accounts.findFirst({
     where: (t, { eq, isNull }) =>
       and(eq(t.role, "owner"), isNull(t.deletedAt)),
     columns: { id: true },
@@ -332,9 +229,8 @@ export async function ensureMemberOnFirstLogin(
   const shouldBeOwner = !existingOwner;
   let assignedRoleId = account.roleId;
 
-  // 若為 owner 且沒有角色，指派 Admin 角色
   if ((shouldBeOwner || account.role === "owner") && !assignedRoleId) {
-    const adminRole = await db.query.roles.findFirst({
+    const adminRole = await d.query.roles.findFirst({
       where: (t, { eq, isNull }) =>
         and(eq(t.name, "Admin"), isNull(t.deletedAt)),
       columns: { id: true },
@@ -344,7 +240,7 @@ export async function ensureMemberOnFirstLogin(
     }
   }
 
-  const [updated] = await db
+  const [updated] = await d
     .update(accounts)
     .set({
       roleId: assignedRoleId,
@@ -376,7 +272,6 @@ export async function ensureMemberOnFirstLogin(
  * 統一使用 accounts 表
  */
 export async function checkTenantHasOwner() {
-  const db = await getDynamicDb();
 
   const owner = await db.query.accounts.findFirst({
     where: (t, { eq, isNull }) =>
@@ -390,7 +285,6 @@ export async function checkTenantHasOwner() {
  * 透過 email 取得帳號
  */
 export async function getAccountByEmail(email: string) {
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     where: (t, { eq }) => eq(t.email, email),
@@ -400,35 +294,23 @@ export async function getAccountByEmail(email: string) {
 
 /**
  * 透過 email 取得帳號 (包含密碼)
- * Core 模式：使用本地 accounts 表
- * APPS 模式：委派給 hive 層的服務函式
  */
-export async function getAccountWithPasswordByEmail(
-  email: string,
-): Promise<HiveAccount | null> {
-  if (isCoreMode()) {
-    // Core 模式：使用本地 accounts 表
-    const db = await getDynamicDb();
-    const account = await db.query.accounts.findFirst({
-      where: (t, { eq, isNull }) =>
-        and(eq(t.email, email), isNull(t.deletedAt)),
-    });
+export async function getAccountWithPasswordByEmail(email: string) {
+  const account = await db.query.accounts.findFirst({
+    where: (t, { eq, isNull }) =>
+      and(eq(t.email, email), isNull(t.deletedAt)),
+  });
 
-    if (!account) return null;
+  if (!account) return null;
 
-    return {
-      id: account.id,
-      email: account.email,
-      name: account.name,
-      password: account.password,
-      active: account.active,
-      avatar: account.avatar,
-      lastLoginAt: account.lastLoginAt,
-    };
-  } else {
-    // APPS 模式：使用 Platform Adapter
-    const adapter = await getPlatformAdapter();
-    return adapter.getAccountByEmail(email);
-  }
+  return {
+    id: account.id,
+    email: account.email,
+    name: account.name,
+    password: account.password,
+    active: account.active,
+    avatar: account.avatar,
+    lastLoginAt: account.lastLoginAt,
+  };
 }
 

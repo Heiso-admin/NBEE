@@ -1,18 +1,16 @@
-import { headers } from "next/headers";
-
-// Fallback ID for standalone dev mode
 export const APP_MODE = "core";
 
 /**
- * Retrieves the current tenant ID from the request headers.
+ * Retrieves the current tenant ID from environment.
  */
-export async function getTenantId(): Promise<string | undefined> {
-    const h = await headers();
-    const tenantId = h.get("x-tenant-id");
+export function getTenantId(): string | undefined {
+  if (process.env.TENANT_ID) {
+    return process.env.TENANT_ID;
+  }
 
-    if (!tenantId && process.env.APP_MODE === APP_MODE) {
-        return APP_MODE;
-    }
+  if (process.env.APP_MODE === APP_MODE) {
+    return APP_MODE;
+  }
 
-    return tenantId || undefined;
+  return undefined;
 }

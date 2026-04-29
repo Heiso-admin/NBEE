@@ -1,6 +1,6 @@
 "use server";
 
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { settings } from "@heiso/core/lib/db/schema/system/setting";
 
 const KEY_GROUP = "api_keys";
@@ -12,7 +12,6 @@ type KeyMapping = {
 };
 
 export async function getKeys() {
-  const db = await getDynamicDb();
 
   const keySettings = await db.query.settings.findMany({
     where: (fields, { eq }) => eq(fields.group, KEY_GROUP),
@@ -30,7 +29,6 @@ export async function getKeys() {
 }
 
 export async function saveKeys(data: any) {
-  const db = await getDynamicDb();
 
   const keyMappings: KeyMapping = {
     "openai.api_key": data.openai.api_key,

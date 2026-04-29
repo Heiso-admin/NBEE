@@ -1,4 +1,5 @@
 import NextAuth, { CredentialsSignin, type DefaultSession } from "next-auth";
+import { db } from "@heiso/core/lib/db";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
@@ -64,8 +65,6 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
         const account_ = await getAccountByEmail(email);
         if (!account_) return true;
 
-        const { getDynamicDb } = await import("@heiso/core/lib/db/dynamic");
-        const db = await getDynamicDb();
         const { and, eq, isNull } = await import("drizzle-orm");
 
         // 統一使用 accounts 表（Core 和 APPS 模式皆同）
@@ -236,9 +235,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
           return;
         }
 
-        const { getDynamicDb } = await import("@heiso/core/lib/db/dynamic");
         const { eq } = await import("drizzle-orm");
-        const db = await getDynamicDb();
 
         // 統一使用 accounts 表（Core 和 APPS 模式皆同）
         const { accounts } = await import("@heiso/core/lib/db/schema");
@@ -350,8 +347,6 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
         // Resolve customRole if roleId exists
         if ((account as any).roleId) {
           try {
-            const { getDynamicDb } = await import("@heiso/core/lib/db/dynamic");
-            const db = await getDynamicDb();
             const { roles } = await import("@heiso/core/lib/db/schema");
             const { eq } = await import("drizzle-orm");
             const customRole = await db.query.roles.findFirst({

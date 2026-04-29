@@ -1,7 +1,6 @@
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 
 export async function getSiteSetting() {
-  const db = await getDynamicDb();
   const settings = await db.query.settings.findMany({
     where: (fields, { and, eq, isNull }) => and(
       isNull(fields.deletedAt),

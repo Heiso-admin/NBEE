@@ -1,12 +1,11 @@
 "use server";
 
 import type { Locale } from "@heiso/core/i18n/config";
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { settings } from "@heiso/core/lib/db/schema";
 import type { Settings } from "@heiso/core/types/system";
 
 async function getGeneralSettings(): Promise<Settings> {
-  const db = await getDynamicDb();
   const result = await db.query.settings.findMany({
     columns: { name: true, value: true },
     where: (fields, { and, eq, isNull }) =>
@@ -21,7 +20,6 @@ async function getGeneralSettings(): Promise<Settings> {
 }
 
 async function saveGeneralSetting(data: Settings) {
-  const db = await getDynamicDb();
 
   await db.transaction(async (tx) => {
     const entries = Object.entries(data ?? {});
@@ -48,7 +46,6 @@ async function saveGeneralSetting(data: Settings) {
 }
 
 async function saveDefaultLanguage(locale: Locale) {
-  const db = await getDynamicDb();
 
   await db
     .insert(settings)

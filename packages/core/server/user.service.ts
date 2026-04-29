@@ -5,7 +5,7 @@ import {
   getAccountById,
   updateAccount,
 } from "@heiso/core/lib/platform/account-adapter";
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import type { TAccount } from "@heiso/core/lib/db/schema";
 
 // Re-export adapter functions
@@ -15,7 +15,6 @@ export { getAccountByEmailAdapter as getAccountByEmail };
  * Get all accounts
  */
 export async function getUsers() {
-  const db = await getDynamicDb();
 
   return await db.query.accounts.findMany({
     columns: {
@@ -40,7 +39,6 @@ export async function getUserById(id: string) {
  * 統一使用 accounts 表
  */
 export async function getInvitation(token: string) {
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     columns: {

@@ -1,7 +1,7 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { settings } from "@heiso/core/lib/db/schema";
 import type { NewsletterSenderSetting } from "@heiso/core/types/newsletter";
 import {
@@ -20,7 +20,6 @@ const DEFAULT_SENDER_SETTING: NewsletterSenderSetting = {
  * 讀取 newsletter sender 設定。若尚未建立則回傳預設（verificationStatus='pending'）。
  */
 export async function getNewsletterSender(): Promise<NewsletterSenderSetting> {
-  const db = await getDynamicDb();
   const [row] = await db
     .select({ value: settings.value })
     .from(settings)
@@ -51,7 +50,6 @@ export async function getNewsletterSender(): Promise<NewsletterSenderSetting> {
 export async function setNewsletterSender(
   value: NewsletterSenderSetting,
 ): Promise<void> {
-  const db = await getDynamicDb();
   await db
     .insert(settings)
     .values({
@@ -103,7 +101,6 @@ export async function getSenderFromAddress(): Promise<string | null> {
  * 未設定時回 null，呼叫端可 fallback 到環境變數。
  */
 export async function getWebhookSecret(): Promise<string | null> {
-  const db = await getDynamicDb();
   const [row] = await db
     .select({ value: settings.value })
     .from(settings)
@@ -124,7 +121,6 @@ export async function getWebhookSecret(): Promise<string | null> {
  * 空字串視為清除（寫 null）。
  */
 export async function setWebhookSecret(secret: string | null): Promise<void> {
-  const db = await getDynamicDb();
   const normalized = secret && secret.trim().length > 0 ? secret.trim() : null;
   await db
     .insert(settings)

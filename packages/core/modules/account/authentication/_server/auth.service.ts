@@ -1,6 +1,6 @@
 "use server";
 
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { z } from "zod";
 
 const passwordSchema = z
@@ -49,7 +49,6 @@ export async function toggle2FA(accountId: string, enabled: boolean) {
  * 統一使用 accounts 表
  */
 export async function findMembershipByAccountId(accountId: string) {
-  const db = await getDynamicDb();
 
   const account = await db.query.accounts.findFirst({
     columns: {

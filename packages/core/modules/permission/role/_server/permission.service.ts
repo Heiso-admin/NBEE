@@ -1,7 +1,7 @@
 "use server";
 
 import { permissionsConfig, type PermissionConfigShape } from "@heiso/core/config/permissions";
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import {
   permissions,
   type TMenu,
@@ -26,7 +26,6 @@ async function getPermissions() {
     map.set(p.id, p);
   }
 
-  const db = await getDynamicDb();
   const result = await db.query.permissions.findMany({
     where: (t, { isNull }) => isNull(t.deletedAt),
   });
@@ -70,7 +69,6 @@ async function createPermission({
   resource: string;
   action: string;
 }) {
-  const db = await getDynamicDb();
   const result = await db.insert(permissions).values({
     menuId,
     resource,
@@ -90,7 +88,6 @@ async function updatePermission({
   resource: string;
   action: string;
 }) {
-  const db = await getDynamicDb();
   const result = await db
     .update(permissions)
     .set({
@@ -105,7 +102,6 @@ async function updatePermission({
 }
 
 async function deletePermission({ id }: { id: string }) {
-  const db = await getDynamicDb();
   const result = await db
     .update(permissions)
     .set({

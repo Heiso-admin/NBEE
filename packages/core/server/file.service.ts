@@ -1,6 +1,6 @@
 "use server";
 
-import { getDynamicDb } from "@heiso/core/lib/db/dynamic";
+import { db } from "@heiso/core/lib/db";
 import { fileStorageCategories, files } from "@heiso/core/lib/db/schema";
 import { generateId } from "@heiso/core/lib/id-generator";
 import { auth } from "@heiso/core/modules/auth/auth.config";
@@ -46,7 +46,6 @@ export async function saveFile(file: {
   type: string;
   url: string;
 }) {
-  const db = await getDynamicDb();
   const session = await auth();
   const accountId = session?.user?.id;
   if (!accountId) {
