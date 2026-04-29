@@ -12,7 +12,7 @@ const globalForDb = globalThis as unknown as {
 
 export const client =
   globalForDb.sharedClient ?? postgres(process.env.DATABASE_URL, {
-    max: 1,
+    max: 5,
     idle_timeout: 10,
     connect_timeout: 10,
     prepare: false,
@@ -20,7 +20,7 @@ export const client =
 
 if (process.env.NODE_ENV !== "production") globalForDb.sharedClient = client;
 
-const db = drizzle({ client, schema });
+const db = drizzle({ client, schema, logger: true });
 
 export async function closeDb() {
   await client.end({ timeout: 0 });

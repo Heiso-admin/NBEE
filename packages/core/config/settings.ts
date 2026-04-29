@@ -1,8 +1,9 @@
+import { cache } from "react";
 import { getSystemSettings } from "@heiso/core/server/services/system/setting";
 import { getSiteSettings } from "@heiso/core/server/site.service";
 import type { Settings } from "@heiso/core/types/system";
 
-export async function settings(withoutKey: boolean = false): Promise<Settings> {
+export const settings = cache(async (withoutKey: boolean = false): Promise<Settings> => {
   const data = await getSystemSettings(withoutKey);
   // Prefer environment variable if set
   if (process.env.NOTIFY_EMAIL) {
@@ -24,8 +25,8 @@ export async function settings(withoutKey: boolean = false): Promise<Settings> {
     data["AWS_S3_BUCKET"] = process.env.NBEE_AWS_S3_BUCKET;
   }
   return data;
-}
+});
 
-export function site(): Promise<Settings> {
+export const site = cache((): Promise<Settings> => {
   return getSiteSettings() as Promise<Settings>;
-}
+});
