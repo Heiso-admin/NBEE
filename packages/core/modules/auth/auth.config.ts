@@ -277,7 +277,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
         password: { label: "Password", type: "password" },
         email: { label: "Email" },
         otpVerified: { label: "OTP Verified" },
-        userId: { label: "User ID" },
+        accountId: { label: "Account ID" },
         isDevLogin: { label: "Is Dev Login" },
       },
       async authorize(credentials, _req) {
@@ -285,7 +285,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
         // OTP already verified by verifyDevOTP, trust the result
         if (credentials?.otpVerified === "true") {
           const email = String(credentials?.email || "");
-          const accountId = String(credentials?.userId || "");
+          const accountId = String(credentials?.accountId || "");
           if (!email || !accountId) throw new InvalidLoginError();
 
           const isDevLogin = credentials?.isDevLogin === "true";

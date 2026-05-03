@@ -108,13 +108,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
         email: { label: "Email" },
         otpVerified: { label: "OTP Verified" },
-        userId: { label: "User ID" },
+        accountId: { label: "Account ID" },
       },
       async authorize(credentials) {
         // Handle OTP verification flow
-        if (credentials?.otpVerified === "true" && credentials?.userId) {
+        if (credentials?.otpVerified === "true" && credentials?.accountId) {
           const account = await getAccountByEmail(credentials.email as string);
-          if (!account || account.id !== credentials.userId) {
+          if (!account || account.id !== credentials.accountId) {
             throw new InvalidLoginError();
           }
           return {

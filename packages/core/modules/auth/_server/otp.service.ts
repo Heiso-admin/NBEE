@@ -17,7 +17,7 @@ export interface OTPGenerationResult {
 export interface OTPVerificationResult {
   success: boolean;
   message: string;
-  userId?: string;
+  accountId?: string;
 }
 
 /**
@@ -150,7 +150,7 @@ export async function verifyOTP(
     return {
       success: true,
       message: "OTP verified successfully",
-      userId: account.id, // Keeping userId in response interface for backwards compatibility
+      accountId: account.id,
     };
   } catch (error) {
     console.error("Error verifying OTP:", error);

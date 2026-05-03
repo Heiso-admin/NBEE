@@ -35,7 +35,7 @@ interface OTPLoginFormProps {
   /** Pass additional credentials to signIn (e.g., isDevLogin for admin access) */
   extraSignInParams?: Record<string, string>;
   /** Custom verify function (e.g., verifyDevOTP for devlogin) */
-  verifyFn?: (email: string, code: string) => Promise<{ success: boolean; message?: string; userId?: string }>;
+  verifyFn?: (email: string, code: string) => Promise<{ success: boolean; message?: string; accountId?: string }>;
 }
 
 const codeBoxMaxWidth = 6;
@@ -117,12 +117,12 @@ export default function OTPLoginForm({
         return;
       }
 
-      if (result.success && result.userId) {
+      if (result.success && result.accountId) {
         // 使用 NextAuth 的 signIn 进行登录
         const signInResult = await signIn("credentials", {
           email: userEmail,
           otpVerified: "true",
-          userId: result.userId,
+          accountId: result.accountId,
           redirect: false,
           ...extraSignInParams,
         });

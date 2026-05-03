@@ -24,7 +24,7 @@ export const pageTemplates = pgTable(
     id: varchar("id", { length: 20 })
       .primaryKey()
       .$defaultFn(() => generateId()),
-    userId: varchar("user_id", { length: 50 }).notNull(),
+    accountId: varchar("account_id", { length: 50 }).notNull(),
     name: varchar("name", { length: 255 }).notNull(),
     pageId: varchar("page_id", { length: 20 }),
     thumbnail: varchar("thumbnail", { length: 255 }),
@@ -35,7 +35,7 @@ export const pageTemplates = pgTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [
-    index("page_templates_user_id_idx").on(table.userId),
+    index("page_templates_account_id_idx").on(table.accountId),
     index("page_templates_page_id_idx").on(table.pageId),
   ],
 );
@@ -46,7 +46,7 @@ export const posts = pgTable(
     id: varchar("id", { length: 20 })
       .primaryKey()
       .$defaultFn(() => generateId()),
-    userId: varchar("user_id", { length: 50 }).notNull(),
+    accountId: varchar("account_id", { length: 50 }).notNull(),
     // categoryId: varchar('category_id', { length: 20 }),
     slug: varchar("slug", { length: 255 }).notNull(),
     title: varchar("title", { length: 255 }),
@@ -68,7 +68,7 @@ export const posts = pgTable(
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [
-    index("pages_user_id_idx").on(table.userId),
+    index("pages_account_id_idx").on(table.accountId),
     // index('pages_category_id_idx').on(table.categoryId),
     index("pages_slug_idx").on(table.slug),
     index("pages_status_idx").on(table.status),
@@ -82,7 +82,7 @@ export const pageCategories = pgTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => generateId()),
-    userId: varchar("user_id", { length: 50 }).notNull(),
+    accountId: varchar("account_id", { length: 50 }).notNull(),
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
     description: text("description"),
@@ -91,14 +91,14 @@ export const pageCategories = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [index("page_categories_user_id_idx").on(table.userId)],
+  (table) => [index("page_categories_account_id_idx").on(table.accountId)],
 );
 
 export const tags = pgTable(
   "tags",
   {
     id: varchar("id", { length: 200 }).notNull().primaryKey(),
-    userId: varchar("user_id", { length: 50 }).notNull(),
+    accountId: varchar("account_id", { length: 50 }).notNull(),
     name: varchar("name", { length: 100 }).notNull(),
     slug: varchar("slug", { length: 100 }).notNull().unique(),
     postCount: integer("post_count").default(0),
@@ -106,7 +106,7 @@ export const tags = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [index("tags_user_id_idx").on(table.userId)],
+  (table) => [index("tags_account_id_idx").on(table.accountId)],
 );
 
 export const pageCategoryRelations = pgTable(
@@ -128,7 +128,7 @@ export const pageCategoryRelations = pgTable(
 
 export const postRelations = relations(posts, ({ one, many }) => ({
   user: one(accounts, {
-    fields: [posts.userId],
+    fields: [posts.accountId],
     references: [accounts.id],
   }),
   categories: many(pageCategoryRelations),
@@ -152,7 +152,7 @@ export const pageCategoriesRelations = relations(
   pageCategories,
   ({ one, many }) => ({
     user: one(accounts, {
-      fields: [pageCategories.userId],
+      fields: [pageCategories.accountId],
       references: [accounts.id],
     }),
     posts: many(pageCategoryRelations),
@@ -161,7 +161,7 @@ export const pageCategoriesRelations = relations(
 
 export const tagRelations = relations(tags, ({ one, many }) => ({
   user: one(accounts, {
-    fields: [tags.userId],
+    fields: [tags.accountId],
     references: [accounts.id],
   }),
   posts: many(posts),

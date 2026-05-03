@@ -30,7 +30,7 @@ export type PostRow = {
   isPublished: string | null;
   updated: string;
   created: string;
-  userId: { id: string; name: string };
+  accountId: { id: string; name: string };
   updater?: { id: string; name: string } | null;
   status: string;
   menus: Menu[];
@@ -162,13 +162,13 @@ export function PostTable({
           row.original.menus?.map((menu) => menu.title).join(", ") || "-",
       },
       {
-        accessorKey: "userId",
+        accessorKey: "accountId",
         header: () => label("author"),
         cell: ({ row }) => {
           return (
             <span className="flex items-center gap-1">
               <UserRound className="size-4" />
-              {row.original.userId?.name}
+              {row.original.accountId?.name}
             </span>
           );
         },

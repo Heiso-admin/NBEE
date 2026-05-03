@@ -23,7 +23,7 @@ export const navigations = pgTable(
     id: varchar("id", { length: 20 })
       .primaryKey()
       .$default(() => generateNavigationId()),
-    userId: varchar("user_id", { length: 50 }).notNull(),
+    accountId: varchar("account_id", { length: 50 }).notNull(),
     slug: varchar("slug", { length: 100 }).notNull(),
     name: varchar("name", { length: 100 }).notNull(),
     parentId: varchar("parent_id", { length: 20 }),

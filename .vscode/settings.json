@@ -1,4 +1,5 @@
 {
+  "git.repositoryScanMaxDepth": 3,
   "cSpell.words": [
     "Codists",
     "elysia",
