@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" width="380" height="100">
+  <!-- Orange circle mark with a notch (HEISO style) -->
+  <g transform="translate(50, 50)">
+    <!-- Outer orange circle -->
+    <circle cx="0" cy="0" r="32" fill="#F58A1F"/>
+    <!-- Inner cut-out creates the "C/O" shape -->
+    <circle cx="0" cy="0" r="14" fill="#FFFFFF"/>
+    <!-- Orange dot inside -->
+    <circle cx="0" cy="0" r="7" fill="#F58A1F"/>
+    <!-- Small orange tail/leaf at bottom-left -->
+    <path d="M -22 22 Q -32 28 -36 36 Q -28 32 -18 28 Z" fill="#F58A1F"/>
+  </g>
+
+  <!-- "HEISO" text -->
+  <text
+    x="105"
+    y="68"
+    font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif"
+    font-size="46"
+    font-weight="900"
+    fill="#1A1A1A"
+    letter-spacing="1"
+  >HEISO</text>
+</svg>
