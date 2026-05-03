@@ -1,4 +1,4 @@
-import { generateId } from "@heiso/core/lib/id-generator";
+import { sha256File } from "@heiso/core/lib/hash";
 import { getPreSignedUrl } from "@heiso/core/lib/s3";
 import type { FileRouter, UploadedFile } from "@heiso/core/lib/upload-router";
 import * as React from "react";
@@ -11,7 +11,7 @@ type ProgressVerboseEvent = {
 export type UploadS3FileOptions<T extends FileRouter> = {
   router: T;
   endpoint: keyof T;
-  tenant: string;
+  /** 公開檔案的 CDN host(無 trailing slash);沒設則讀 `NEXT_PUBLIC_CDN_URL` */
   hostEndpoint?: string;
   onProgress?: (progress: number, verbose?: ProgressVerboseEvent) => void;
   onError?: (error: Error) => void;
@@ -69,9 +69,14 @@ export const useUploadS3File = <T extends FileRouter>(
     // Execute middleware
     const metadata = (await route.middleware?.()) || {};
 
+    // Content-addressed key:{sha256}.{ext}(assets-foundation §5)
+    // 同內容 → 同 key → S3 PUT 自動覆蓋(內容相同無副作用),server saveFile 端做 dedup
     const ext = file.name.split(".").pop();
-    const key = `${generateId()}.${ext}`;
-    const { url } = await getPreSignedUrl(options.tenant, key);
+    const hash = await sha256File(file);
+    const key = ext ? `${hash}.${ext}` : hash;
+    const visibility = route.visibility ?? "public";
+    // tenant 由 server-side getPreSignedUrl 從 process.env.TENANT_ID 決定
+    const { url, path } = await getPreSignedUrl(key, visibility);
 
     abortController = new AbortController();
 
@@ -93,12 +98,23 @@ export const useUploadS3File = <T extends FileRouter>(
 
         xhr.addEventListener("load", async () => {
           if (xhr.status >= 200 && xhr.status < 300) {
-            const uploadedFile = {
-              url: `${options.hostEndpoint}/${options.tenant}/${key}`,
+            // public:CDN URL;private:不在這裡產生(走 server-side getDownloadUrl)
+            const cdn =
+              options.hostEndpoint ??
+              process.env.NEXT_PUBLIC_CDN_URL ??
+              "https://nbee-cdn.heiso.io";
+            const uploadedFile: UploadedFile = {
+              url:
+                visibility === "public"
+                  ? `${cdn.replace(/\/$/, "")}/${path}`
+                  : "",
               key,
               name: file.name,
               size: file.size,
               type: file.type,
+              hash,
+              path,
+              visibility,
             };
 
             // Execute upload completion callback

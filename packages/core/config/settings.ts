@@ -24,6 +24,13 @@ export const settings = cache(async (withoutKey: boolean = false): Promise<Setti
   if (process.env.NBEE_AWS_S3_BUCKET) {
     data["AWS_S3_BUCKET"] = process.env.NBEE_AWS_S3_BUCKET;
   }
+  // assets-foundation:public + private buckets
+  if (process.env.NBEE_AWS_S3_BUCKET_PUBLIC) {
+    data["AWS_S3_BUCKET_PUBLIC"] = process.env.NBEE_AWS_S3_BUCKET_PUBLIC;
+  }
+  if (process.env.NBEE_AWS_S3_BUCKET_PRIVATE) {
+    data["AWS_S3_BUCKET_PRIVATE"] = process.env.NBEE_AWS_S3_BUCKET_PRIVATE;
+  }
   return data;
 });
 

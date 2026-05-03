@@ -1,10 +1,12 @@
 "use server";
 
 import { db } from "@heiso/core/lib/db";
-import { fileStorageCategories, files } from "@heiso/core/lib/db/schema";
+import { fileFolders, files } from "@heiso/core/lib/db/schema";
 import { generateId } from "@heiso/core/lib/id-generator";
+import { getPreSignedDownloadUrl } from "@heiso/core/lib/s3";
+import type { UploadedFile } from "@heiso/core/lib/upload-router";
 import { auth } from "@heiso/core/modules/auth/auth.config";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 
 function detectFileType(rawType: string) {
   const mimeToType: Record<string, string> = {
@@ -40,12 +42,7 @@ const CATEGORY_DEFAULTS: Record<
   other: { name: "Others", icon: "file", color: "gray" },
 };
 
-export async function saveFile(file: {
-  name: string;
-  size: number;
-  type: string;
-  url: string;
-}) {
+export async function saveFile(file: UploadedFile) {
   const session = await auth();
   const accountId = session?.user?.id;
   if (!accountId) {
@@ -56,14 +53,31 @@ export async function saveFile(file: {
     return Response.json({ error: "No file data provided" }, { status: 400 });
   }
 
+  // Verify path 是 `{tenant}/...` 開頭(防 caller 偽造 path)
+  const tenant = process.env.TENANT_ID ?? "test";
+  if (!file.path.startsWith(`${tenant}/`)) {
+    return Response.json({ error: "Invalid path tenant prefix" }, { status: 400 });
+  }
+
+  // Dedup:同 hash 已存在(active)就直接返回,不重複入 row
+  // (cell DB 單 tenant,不需要 tenant_id 條件)
+  if (file.hash) {
+    const existing = await db.query.files.findFirst({
+      where: and(eq(files.hash, file.hash), isNull(files.deletedAt)),
+    });
+    if (existing) {
+      return existing;
+    }
+  }
+
   const extension = file.name.split(".").pop() || "";
   const fileType = detectFileType(file.type);
   const categoryDefault = CATEGORY_DEFAULTS[fileType] || CATEGORY_DEFAULTS.other;
 
   const result = await db.transaction(async (tx) => {
-    // Upsert storage category
+    // Upsert folder(原 storage category)
     await tx
-      .insert(fileStorageCategories)
+      .insert(fileFolders)
       .values({
         id: fileType,
         name: categoryDefault.name,
@@ -73,10 +87,10 @@ export async function saveFile(file: {
         size: file.size,
       })
       .onConflictDoUpdate({
-        target: fileStorageCategories.id,
+        target: fileFolders.id,
         set: {
-          fileCount: sql`${fileStorageCategories.fileCount} + 1`,
-          size: sql`${fileStorageCategories.size} + ${file.size}`,
+          fileCount: sql`${fileFolders.fileCount} + 1`,
+          size: sql`${fileFolders.size} + ${file.size}`,
         },
       });
 
@@ -88,12 +102,14 @@ export async function saveFile(file: {
         size: file.size,
         type: fileType,
         extension,
-        url: file.url,
-        path: "",
+        url: file.url || null,
+        path: file.path,
         mimeType: file.type,
         metadata: {},
         ownerId: accountId,
-        storageCategoryId: fileType,
+        folderId: fileType,
+        hash: file.hash,
+        scanStatus: "clean",
       })
       .returning();
 
@@ -101,4 +117,56 @@ export async function saveFile(file: {
   });
 
   return result;
+}
+
+/**
+ * Soft-delete file(assets-foundation §6:hard delete 等 lifecycle 出手)
+ */
+export async function deleteFile(fileId: string) {
+  const session = await auth();
+  const accountId = session?.user?.id;
+  if (!accountId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const [updated] = await db
+    .update(files)
+    .set({ deletedAt: new Date() })
+    .where(and(eq(files.id, fileId), eq(files.ownerId, accountId)))
+    .returning();
+
+  if (!updated) {
+    return Response.json({ error: "File not found" }, { status: 404 });
+  }
+  return updated;
+}
+
+/**
+ * Issue 5-min download URL for private files。
+ * Gates by scanStatus = 'clean'(quarantined / pending 一律 reject)。
+ */
+export async function getDownloadUrl(fileId: string) {
+  const session = await auth();
+  const accountId = session?.user?.id;
+  if (!accountId) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const file = await db.query.files.findFirst({
+    where: and(eq(files.id, fileId), isNull(files.deletedAt)),
+  });
+  if (!file) {
+    return Response.json({ error: "File not found" }, { status: 404 });
+  }
+
+  if (file.scanStatus !== "clean") {
+    return Response.json(
+      { error: `File scan status: ${file.scanStatus}` },
+      { status: 403 },
+    );
+  }
+
+  // Path 是 `{tenant}/{sha256}.{ext}`,getPreSignedDownloadUrl 用 raw key
+  const url = await getPreSignedDownloadUrl(file.path, "private");
+  return { url };
 }

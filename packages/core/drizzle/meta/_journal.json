@@ -92,6 +92,13 @@
       "when": 1774586842145,
       "tag": "0013_elite_the_enforcers",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1777783037562,
+      "tag": "0013_bouncy_red_hulk",
+      "breakpoints": true
     }
   ]
 }

@@ -64,3 +64,11 @@ export async function hashApiKey(key: string): Promise<string> {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
+
+// SHA-256 of a browser File / Blob — for content-addressed S3 paths(assets-foundation §5)
+export async function sha256File(file: Blob): Promise<string> {
+  const buf = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest("SHA-256", buf);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
