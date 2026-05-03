@@ -14,6 +14,23 @@ let s3Client: S3Client | null = null;
 
 export type Visibility = "public" | "private";
 
+/**
+ * Get tenant ID from environment。
+ * Prod: must be set, else throw。Dev/preview: fallback to "test"。
+ */
+function getTenant(): string {
+  const tenant = process.env.TENANT_ID;
+  if (!tenant) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "TENANT_ID environment variable is required in production"
+      );
+    }
+    return "test";
+  }
+  return tenant;
+}
+
 export async function initS3Client() {
   if (s3Client) return s3Client;
 
@@ -68,7 +85,7 @@ export async function getPreSignedUrl(
   const s3Client = await initS3Client();
   const bucket = await getBucketName(visibility);
 
-  const tenant = process.env.TENANT_ID ?? "test";
+  const tenant = getTenant();
   const path = `${tenant}/${filename}`;
   const command = new PutObjectCommand({
     Bucket: bucket,

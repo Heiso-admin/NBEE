@@ -8,6 +8,23 @@ import type { UploadedFile } from "@heiso/core/lib/upload-router";
 import { auth } from "@heiso/core/modules/auth/auth.config";
 import { and, eq, isNull, sql } from "drizzle-orm";
 
+/**
+ * Get tenant ID from environment(same logic as s3/index.ts)。
+ * Prod: must be set, else throw。Dev/preview: fallback to "test"。
+ */
+function getTenant(): string {
+  const tenant = process.env.TENANT_ID;
+  if (!tenant) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "TENANT_ID environment variable is required in production"
+      );
+    }
+    return "test";
+  }
+  return tenant;
+}
+
 function detectFileType(rawType: string) {
   const mimeToType: Record<string, string> = {
     "image/": "image",
@@ -46,15 +63,15 @@ export async function saveFile(file: UploadedFile) {
   const session = await auth();
   const accountId = session?.user?.id;
   if (!accountId) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    throw new Error("Unauthorized");
   }
 
   if (!file) {
-    return Response.json({ error: "No file data provided" }, { status: 400 });
+    throw new Error("No file data provided");
   }
 
   // Verify path 是 `{tenant}/...` 開頭(防 caller 偽造 path)
-  const tenant = process.env.TENANT_ID ?? "test";
+  const tenant = getTenant();
   if (!file.path.startsWith(`${tenant}/`)) {
     return Response.json({ error: "Invalid path tenant prefix" }, { status: 400 });
   }
@@ -153,7 +170,11 @@ export async function getDownloadUrl(fileId: string) {
   }
 
   const file = await db.query.files.findFirst({
-    where: and(eq(files.id, fileId), isNull(files.deletedAt)),
+    where: and(
+      eq(files.id, fileId),
+      eq(files.ownerId, accountId),
+      isNull(files.deletedAt)
+    ),
   });
   if (!file) {
     return Response.json({ error: "File not found" }, { status: 404 });

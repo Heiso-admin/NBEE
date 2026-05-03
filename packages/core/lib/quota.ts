@@ -20,7 +20,7 @@ export async function getTenantQuota(): Promise<number> {
 
 /**
  * 已用 bytes(active files,扣除 soft-deleted)。
- * cell DB 單 tenant,whole-table sum 即可。
+ * cell DB 單 tenant。dedup 時只有 1 row 代表該內容,所以 SUM(size) 自動去重。
  */
 export async function getUsedBytes(): Promise<number> {
   const [row] = await db
