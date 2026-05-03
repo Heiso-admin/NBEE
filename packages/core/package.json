@@ -21,7 +21,10 @@
     "./i18n/*": "./i18n/*.ts",
     "./emails/*": "./emails/*.tsx",
     "./providers/*": "./providers/*.tsx",
-    "./globals.css": "./app/globals.css"
+    "./globals.css": {
+      "style": "./app/globals.css",
+      "default": "./app/globals.css"
+    }
   },
   "scripts": {
     "dev": "bun run:permission && bun x next dev --turbo",

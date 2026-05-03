@@ -120,7 +120,8 @@ export async function seedDefaults(db: any, modules: string[], tenantId: string)
 
         await tx.insert(navigations).values({
             id: navId,
-            accountId: PLACEHOLDER_ACCOUNT_ID,
+            // schema 用 userId column；CLAUDE.md 規範要求改 accountId（待開 schema rename PR）
+            userId: PLACEHOLDER_ACCOUNT_ID,
             slug: 'main',
             name: 'Main Menu',
             description: 'Default system generated menu',
