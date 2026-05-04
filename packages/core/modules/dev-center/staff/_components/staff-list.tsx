@@ -53,10 +53,10 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import type { Developer } from "../_server/staff.service";
+import type { Staff } from "../_server/staff.service";
 import { addStaff, removeStaff } from "../_server/staff.service";
 
-const fuzzyFilter: FilterFn<Developer> = (row, _columnId, filterValue) => {
+const fuzzyFilter: FilterFn<Staff> = (row, _columnId, filterValue) => {
   const searchValue = filterValue.toLowerCase();
   const user = row.original.user;
 
@@ -66,7 +66,7 @@ const fuzzyFilter: FilterFn<Developer> = (row, _columnId, filterValue) => {
   );
 };
 
-export function StaffList({ data }: { data: Developer[] }) {
+export function StaffList({ data }: { data: Staff[] }) {
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
   const [isRemovePending, startRemoveTransition] = useTransition();
@@ -74,13 +74,13 @@ export function StaffList({ data }: { data: Developer[] }) {
   const [open, setOpen] = useState(false);
   const t = useTranslations("devCenter.developers");
 
-  const columns: ColumnDef<Developer>[] = [
+  const columns: ColumnDef<Staff>[] = [
     {
       header: t("columns.name"),
       accessorFn: (row) => `${row.user.name} ${row.user.email}`,
       cell: ({ row }) => {
         const isYou = session?.user?.id === row.original.user.id;
-        return <DeveloperUser developer={row.original} isYou={isYou} />;
+        return <DeveloperUser staff={row.original} isYou={isYou} />;
       },
     },
     {
@@ -262,14 +262,14 @@ export function StaffList({ data }: { data: Developer[] }) {
 }
 
 export const DeveloperUser = ({
-  developer,
+  staff,
   isYou,
 }: {
-  developer: Developer;
+  staff: Staff;
   isYou: boolean;
 }) => {
   const t = useTranslations("devCenter.developers");
-  const { user } = developer;
+  const { user } = staff;
   const userName = user.name || user.email?.split("@")[0] || "Unknown";
 
   return (
