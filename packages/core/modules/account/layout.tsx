@@ -3,7 +3,7 @@ import type { UserAvatarMenuItem } from "@heiso/core/components/primitives/user-
 import { auth } from "@heiso/core/modules/auth/auth.config";
 import type { Navigation } from "@heiso/core/types/client";
 import { getTranslations } from "next-intl/server";
-import { getMyMembership } from "../dashboard/(dashboard)/_server/membership.service";
+import { getMyMembership } from "../admin-portal/(dashboard)/_server/membership.service";
 import { PermissionProvider } from "@heiso/core/providers/permission";
 
 export default async function DashboardLayout({
@@ -55,7 +55,7 @@ export default async function DashboardLayout({
         {
           id: "dashboard",
           text: t("userMenu.dashboard"),
-          href: "/dashboard",
+          href: "/admin-portal",
           type: "Link",
         },
         // {

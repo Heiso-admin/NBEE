@@ -52,7 +52,7 @@ export function UserAvatar({
   //       {
   //         id: 'dashboard',
   //         text: 'Dashboard',
-  //         href: '/dashboard',
+  //         href: '/admin-portal',
   //         type: 'Link',
   //       },
   //       {
@@ -194,7 +194,7 @@ export function UserAvatar({
           })}
 
           {/* <DropdownMenuGroup>
-            <Link href="/dashboard">
+            <Link href="/admin-portal">
               <DropdownMenuItem>Dashboard</DropdownMenuItem>
             </Link>
             {isDeveloper && (

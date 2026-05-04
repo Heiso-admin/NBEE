@@ -119,7 +119,7 @@ export function SettingsDialog() {
             href={
               service === "openai"
                 ? "https://platform.openai.com/api-keys"
-                : "https://uploadthing.com/dashboard"
+                : "https://uploadthing.com/admin-portal"
             }
             rel="noopener noreferrer"
             target="_blank"

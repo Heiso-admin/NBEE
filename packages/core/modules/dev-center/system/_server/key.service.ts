@@ -12,19 +12,20 @@ export interface KeysShape {
   resend: { api_key: string };
 }
 
-const NAME_MAP = {
-  "openai.api_key": (k: KeysShape) => k.openai.api_key,
-  "openrouter.api_key": (k: KeysShape) => k.openrouter.api_key,
-  "github.access_token": (k: KeysShape) => k.github.access_token,
-  "resend.api_key": (k: KeysShape) => k.resend.api_key,
-} as const;
+type KeyName =
+  | "openai.api_key"
+  | "openrouter.api_key"
+  | "github.access_token"
+  | "resend.api_key";
 
-const DEFAULT_KEYS: KeysShape = {
-  openai: { api_key: "" },
-  openrouter: { api_key: "" },
-  github: { access_token: "" },
-  resend: { api_key: "" },
-};
+function pickKey(keys: KeysShape, name: KeyName): string {
+  switch (name) {
+    case "openai.api_key": return keys.openai.api_key;
+    case "openrouter.api_key": return keys.openrouter.api_key;
+    case "github.access_token": return keys.github.access_token;
+    case "resend.api_key": return keys.resend.api_key;
+  }
+}
 
 /**
  * 從 DB 讀 API keys（group='api_keys'）並 map 成結構化物件。
@@ -49,11 +50,11 @@ export async function getKeys(): Promise<KeysShape> {
  * 用於 consumer 內部統一從這裡拿 secret，不用各自處理 DB / env。
  */
 export async function getKey(
-  name: keyof typeof NAME_MAP,
+  name: KeyName,
   envFallback?: string,
 ): Promise<string> {
   const keys = await getKeys();
-  const dbValue = NAME_MAP[name](keys);
+  const dbValue = pickKey(keys, name);
   if (dbValue) return dbValue;
   if (envFallback && process.env[envFallback]) return process.env[envFallback]!;
   return "";
@@ -85,4 +86,3 @@ export async function saveKeys(data: Partial<KeysShape>) {
   );
 }
 
-export const KEY_DEFAULTS = DEFAULT_KEYS;

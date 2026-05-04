@@ -86,7 +86,7 @@ export default async function Page({
 
     // Platform staff: skip zombie check, redirect to dashboard
     if (session.user.platformStaff) {
-      redirect("/dashboard");
+      redirect("/admin-portal");
     }
 
     // Fix: Verify if user really exists in DB (Zombie Session Check)
@@ -108,7 +108,7 @@ export default async function Page({
       };
       // 已加入：直接進 Dashboard
       if (member.status === "active") {
-        redirect("/dashboard");
+        redirect("/admin-portal");
       }
 
       // 非 active：如無錯誤參數才導向 Pending；有錯誤時留在 login 顯示錯誤

@@ -1,0 +1,1 @@
+export { default } from "@heiso/core/modules/admin-portal/(dashboard)/layout";

@@ -35,7 +35,7 @@ export default function DevLoginPage() {
     };
 
     const handleLoginSuccess = () => {
-        router.push("/dashboard");
+        router.push("/admin-portal");
     };
 
     const backToLogin = () => {

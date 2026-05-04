@@ -42,10 +42,10 @@ export default async function DashboardPage() {
   const firstPath = Array.isArray(firstItem) ? firstItem[0]?.path : firstItem?.path;
 
   if (
-    (pathname === "/dashboard" || pathname === "/dashboard/") &&
+    (pathname === "/admin-portal" || pathname === "/admin-portal/") &&
     firstPath
   ) {
-    return <ClientRedirect url={`/dashboard${firstPath}`} />;
+    return <ClientRedirect url={`/admin-portal${firstPath}`} />;
   }
 
   return null;

@@ -140,7 +140,7 @@ export function PostActions({
           )}
           {!detailLink && frontendBaseUnconfigured && (
             <DropdownMenuItem asChild className="cursor-pointer">
-              <a href="/dashboard/web-settings">
+              <a href="/admin-portal/cms/web-settings">
                 <ExternalLink className="mr-0.5 h-4 w-4" />
                 {t("previewSetupRequired")}
               </a>
@@ -148,7 +148,7 @@ export function PostActions({
           )}
           {!detailLink && previewSecretUnconfigured && (
             <DropdownMenuItem asChild className="cursor-pointer">
-              <a href="/dashboard/web-settings">
+              <a href="/admin-portal/cms/web-settings">
                 <ExternalLink className="mr-0.5 h-4 w-4" />
                 {t("previewSecretRequired")}
               </a>
