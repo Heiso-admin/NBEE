@@ -29,8 +29,8 @@ export default auth(async (req) => {
     return response;
   }
 
-  // Platform staff: skip all member checks
-  if (!req.auth.user.platformStaff) {
+  // Staff: skip all member checks
+  if (!req.auth.user.staff) {
     const memberStatus = req.auth?.member?.status ?? null;
     const pathname = req.nextUrl.pathname;
 

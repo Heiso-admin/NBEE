@@ -1,11 +1,11 @@
 "use server";
 
-import { updateAccount } from "@heiso/core/lib/platform/account-adapter";
+import { updateAccount } from "@heiso/core/lib/accounts/account-adapter";
 
 /**
  * Update avatar
  * Core mode: Update accounts table
- * CMS mode: Requires Platform API
+ * CMS mode: Requires cell DB
  */
 export async function updateAvatar(userId: string, avatar: string) {
   try {
@@ -31,7 +31,7 @@ export async function updateAvatar(userId: string, avatar: string) {
 /**
  * Update nickname
  * Core mode: Update accounts table
- * CMS mode: Requires Platform API
+ * CMS mode: Requires cell DB
  */
 export async function updateNickname(userId: string, name: string) {
   try {

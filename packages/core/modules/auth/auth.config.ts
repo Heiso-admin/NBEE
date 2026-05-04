@@ -1,5 +1,6 @@
 import NextAuth, { CredentialsSignin, type DefaultSession } from "next-auth";
 import { db } from "@heiso/core/lib/db";
+import { STAFF_CONFIG } from "@heiso/core/modules/dev-center/staff/config";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
@@ -8,7 +9,7 @@ import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 declare module "next-auth" {
   interface Session {
     user: {
-      platformStaff: boolean;
+      staff: boolean;
     } & DefaultSession["user"];
     member?: {
       status: string | null;
@@ -19,7 +20,7 @@ declare module "next-auth" {
     };
   }
   interface JWT {
-    platformStaff?: boolean;
+    staff?: boolean;
     member?: {
       status: string | null;
       role: string | null;
@@ -30,7 +31,7 @@ declare module "next-auth" {
   }
 
   interface User {
-    platformStaff: boolean;
+    staff: boolean;
     member?: {
       status: string | null;
       role: string | null;
@@ -44,7 +45,8 @@ class InvalidLoginError extends CredentialsSignin {
   code = "Invalid identifier or password";
 }
 
-export const ALLOWED_DEV_EMAILS = ["pm@heiso.io", "dev@heiso.io"];
+// 出廠 staff 名單（cell 層 config）。之後 dev-center/staff UI 實作後改讀 DB。
+export const ALLOWED_DEV_EMAILS = STAFF_CONFIG.initialStaff;
 
 export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
   pages: {
@@ -61,7 +63,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
           .trim();
         if (!email) return true;
 
-        const { getAccountByEmail } = await import("@heiso/core/lib/platform/account-adapter");
+        const { getAccountByEmail } = await import("@heiso/core/lib/accounts/account-adapter");
         const account_ = await getAccountByEmail(email);
         if (!account_) return true;
 
@@ -103,8 +105,8 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
       }
     },
     async jwt({ token, user, account, trigger, session: updateData }) {
-      // Invalidate legacy tokens (missing platformStaff field)
-      if (!user && token.platformStaff === undefined) {
+      // Invalidate legacy tokens (missing staff field)
+      if (!user && token.staff === undefined) {
         return {};
       }
 
@@ -116,7 +118,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
       }
 
       if (user) {
-        token.platformStaff = (user as any).platformStaff ?? false;
+        token.staff = (user as any).staff ?? false;
         token.email = (user as any).email ?? (token as any).email;
 
         // Write membership from User object (set during authorize)
@@ -128,7 +130,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
           const email = (user.email || "").toString().trim();
           if (email) {
             try {
-              const { getAccountByEmail } = await import("@heiso/core/lib/platform/account-adapter");
+              const { getAccountByEmail } = await import("@heiso/core/lib/accounts/account-adapter");
               const dbAccount = await getAccountByEmail(email);
               if (dbAccount) {
                 token.sub = dbAccount.id;
@@ -158,13 +160,13 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
-          platformStaff: (token.platformStaff as boolean) ?? false,
+          staff: (token.staff as boolean) ?? false,
           id: token.sub!,
         };
       }
 
-      // Platform staff: grant full access without membership
-      if (token.platformStaff) {
+      // Staff: grant full access without membership
+      if (token.staff) {
         session.member = {
           status: 'active',
           isOwner: false,
@@ -225,12 +227,12 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
 
         if (!email) return;
 
-        const { getAccountByEmail } = await import("@heiso/core/lib/platform/account-adapter");
+        const { getAccountByEmail } = await import("@heiso/core/lib/accounts/account-adapter");
         const existingAccount = await getAccountByEmail(email);
 
         if (!existingAccount) {
           // Core 模式：需要先創建帳號
-          // APPS 模式：帳號需要在 Platform DB 建立
+          // 帳號在 cell DB
           console.warn("[OAuth signIn] Account not found, needs to be created");
           return;
         }
@@ -281,7 +283,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
         isDevLogin: { label: "Is Dev Login" },
       },
       async authorize(credentials, _req) {
-        // DevLogin OTP path (platform staff)
+        // DevLogin OTP path (staff)
         // OTP already verified by verifyDevOTP, trust the result
         if (credentials?.otpVerified === "true") {
           const email = String(credentials?.email || "");
@@ -292,12 +294,12 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
           const isAllowedDevEmail = ALLOWED_DEV_EMAILS.includes(email);
 
           if (isDevLogin && isAllowedDevEmail) {
-            // Platform staff: account is in HIVE DB, not Tenant DB
+            // Staff: account is in cell DB
             return {
               id: accountId,
               name: email.split("@")[0],
               email,
-              platformStaff: true,
+              staff: true,
               member: null,
             };
           }
@@ -311,7 +313,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
             id: account.id,
             name: account.name,
             email: account.email,
-            platformStaff: false,
+            staff: false,
             member: {
               status: (account as any).status ?? null,
               role: (account as any).role ?? null,
@@ -328,7 +330,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
         const {
           getAccountByEmail,
           verifyPassword: verifyAccountPassword,
-        } = await import("@heiso/core/lib/platform/account-adapter");
+        } = await import("@heiso/core/lib/accounts/account-adapter");
 
         const account = await getAccountByEmail(username);
         if (!account) throw new InvalidLoginError();
@@ -366,7 +368,7 @@ export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
           id: account.id,
           name: account.name,
           email: account.email,
-          platformStaff: false,
+          staff: false,
           member: memberData,
         };
       },

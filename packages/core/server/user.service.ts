@@ -4,7 +4,7 @@ import {
   getAccountByEmail as getAccountByEmailAdapter,
   getAccountById,
   updateAccount,
-} from "@heiso/core/lib/platform/account-adapter";
+} from "@heiso/core/lib/accounts/account-adapter";
 import { db } from "@heiso/core/lib/db";
 import type { TAccount } from "@heiso/core/lib/db/schema";
 
@@ -85,8 +85,8 @@ export async function getUser(email: string) {
 
 /**
  * Update account
- * Core mode: Update accounts table
- * CMS mode: Requires Platform API
+
+
  */
 export async function update(id: string, data: Partial<TAccount>) {
   try {

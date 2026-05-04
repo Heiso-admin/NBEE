@@ -68,7 +68,7 @@ const nav: Navigation = {
       {
         id: "Developers",
         title: "Developers",
-        path: "/developers",
+        path: "/staff",
         icon: "user-round-plus",
       },
     ],
@@ -81,7 +81,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  const isPlatformStaff = session?.user?.platformStaff;
+  const isStaff = session?.user?.staff;
 
   const t = await getTranslations("devCenter.userMenu");
 
@@ -130,7 +130,7 @@ export default async function DashboardLayout({
     },
   ] satisfies UserAvatarMenuItem[];
 
-  if (isPlatformStaff) {
+  if (isStaff) {
     userAvatarMenu[0].group?.push({
       id: "dev-center",
       text: t("developer"),
@@ -152,10 +152,10 @@ export default async function DashboardLayout({
               },
             ],
           }}
-          navigation={isPlatformStaff ? nav : undefined}
+          navigation={isStaff ? nav : undefined}
           menu={userAvatarMenu}
         >
-          {!isPlatformStaff ? (
+          {!isStaff ? (
             <div className="h-full flex items-center justify-center">
               Only admin can access this area
             </div>

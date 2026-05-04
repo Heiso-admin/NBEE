@@ -6,7 +6,7 @@ import { getAccountByEmail, getAccountWithPasswordByEmail } from "./user.service
 declare module "next-auth" {
   interface Session {
     user: {
-      platformStaff: boolean;
+      staff: boolean;
     } & DefaultSession["user"];
     member?: {
       status: string | null;
@@ -17,7 +17,7 @@ declare module "next-auth" {
     };
   }
   interface JWT {
-    platformStaff?: boolean;
+    staff?: boolean;
     member?: {
       status: string | null;
       role: string | null;
@@ -28,7 +28,7 @@ declare module "next-auth" {
   }
 
   interface User {
-    platformStaff: boolean;
+    staff: boolean;
     member?: {
       status: string | null;
       role: string | null;
@@ -45,13 +45,13 @@ class InvalidLoginError extends CredentialsSignin {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
-      // Invalidate legacy tokens (missing platformStaff field)
-      if (!user && token.platformStaff === undefined) {
+      // Invalidate legacy tokens (missing staff field)
+      if (!user && token.staff === undefined) {
         return {};
       }
 
       if (user) {
-        token.platformStaff = (user as any).platformStaff ?? false;
+        token.staff = (user as any).staff ?? false;
         token.member = (user as any).member ?? null;
         token.memberUpdatedAt = Date.now();
       }
@@ -61,13 +61,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
-          platformStaff: (token.platformStaff as boolean) ?? false,
+          staff: (token.staff as boolean) ?? false,
           id: token.sub!,
         };
       }
 
-      // Platform staff: grant full access without membership
-      if (token.platformStaff) {
+      // Staff: grant full access without membership
+      if (token.staff) {
         session.member = {
           status: 'active',
           isOwner: false,
@@ -121,7 +121,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             id: account.id,
             name: account.name ?? "",
             email: account.email,
-            platformStaff: false,
+            staff: false,
             member: {
               status: (account as any).status ?? null,
               role: (account as any).role ?? null,
@@ -154,7 +154,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: account.id,
           name: account.name ?? "",
           email: account.email,
-          platformStaff: false,
+          staff: false,
           member: {
             status: (account as any).status ?? null,
             role: (account as any).role ?? null,

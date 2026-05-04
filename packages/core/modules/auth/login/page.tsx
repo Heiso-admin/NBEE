@@ -84,8 +84,8 @@ export default async function Page({
     const userId = session.user.id ?? undefined;
     const sessionEmail = session.user.email ?? undefined;
 
-    // Platform staff: skip zombie check, redirect to dashboard
-    if (session.user.platformStaff) {
+    // Staff: skip zombie check, redirect to dashboard
+    if (session.user.staff) {
       redirect("/portal");
     }
 

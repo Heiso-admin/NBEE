@@ -110,9 +110,9 @@
       "success": "API Keys updated"
     }
   },
-  "developers": {
+  "staff": {
     "title": "Dev Center",
-    "loading": "Loading developers...",
+    "loading": "Loading staff...",
     "columns": {
       "name": "Name",
       "email": "Email",
@@ -126,8 +126,8 @@
       "inputPlaceholder": "Search by name or email..."
     },
     "add": {
-      "buttonLabel": "Add developers",
-      "dialogTitle": "Add New developers",
+      "buttonLabel": "Add Staff",
+      "dialogTitle": "Add New Staff",
       "dialogDescription": "Add a new developers by entering their email address.",
       "emailLabel": "Email Address",
       "emailPlaceholder": "Enter developer's email",

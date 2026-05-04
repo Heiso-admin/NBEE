@@ -16,7 +16,7 @@ interface Membership {
 
 interface AccountContextType {
   account: Partial<TAccount> | null;
-  platformStaff: boolean;
+  staff: boolean;
   membership: Membership[] | null;
   isLoading: boolean;
   error: Error | null;
@@ -25,7 +25,7 @@ interface AccountContextType {
 
 const AccountContext = createContext<AccountContextType>({
   account: null,
-  platformStaff: false,
+  staff: false,
   membership: null,
   isLoading: false,
   error: null,
@@ -35,7 +35,7 @@ const AccountContext = createContext<AccountContextType>({
 export function AccountProvider({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession();
   const [account, setAccount] = useState<Partial<TAccount> | null>(null);
-  const [platformStaff, setPlatformStaff] = useState<boolean>(false);
+  const [staff, setStaff] = useState<boolean>(false);
   const [membership, setMembership] = useState<Membership[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -64,12 +64,12 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
         if (data) {
           const { developer, membership: myMembership, ...account } = data;
           setAccount(account);
-          setPlatformStaff(!!developer);
+          setStaff(!!developer);
           setMembership(myMembership);
         } else {
           // No matching local account found
           setAccount(null);
-          setPlatformStaff(false);
+          setStaff(false);
           setMembership(null);
         }
       } catch (err) {
@@ -91,7 +91,7 @@ export function AccountProvider({ children }: { children: React.ReactNode }) {
       value={{
         account,
         membership,
-        platformStaff,
+        staff,
         isLoading,
         error,
         updateAccount,

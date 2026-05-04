@@ -200,7 +200,7 @@ export async function ensureInviteTokenSilently(accountId: string) {
  * 統一使用 accounts 表
  *
  * 若租戶 DB 中查無帳號（例如透過 Hive CLI 建立的帳號），
- * 會從 Platform DB 拉取帳號資訊並 INSERT 至租戶 DB。
+ * 會從 cell DB 拉取帳號資訊並 INSERT 至租戶 DB。
  *
  * @param accountId - Account ID
  * @param tx - 可選的 transaction

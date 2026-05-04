@@ -53,8 +53,8 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import type { Developer } from "../_server/developer.service";
-import { addDeveloper, removeDeveloper } from "../_server/developer.service";
+import type { Developer } from "../_server/staff.service";
+import { addStaff, removeStaff } from "../_server/staff.service";
 
 const fuzzyFilter: FilterFn<Developer> = (row, _columnId, filterValue) => {
   const searchValue = filterValue.toLowerCase();
@@ -66,7 +66,7 @@ const fuzzyFilter: FilterFn<Developer> = (row, _columnId, filterValue) => {
   );
 };
 
-export function DeveloperList({ data }: { data: Developer[] }) {
+export function StaffList({ data }: { data: Developer[] }) {
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
   const [isRemovePending, startRemoveTransition] = useTransition();
@@ -106,7 +106,7 @@ export function DeveloperList({ data }: { data: Developer[] }) {
                   className="text-xs text-destructive"
                   onClick={() => {
                     startRemoveTransition(async () => {
-                      await removeDeveloper({ id: row.original.accountId });
+                      await removeStaff({ id: row.original.accountId });
                     });
                   }}
                 >
@@ -143,7 +143,7 @@ export function DeveloperList({ data }: { data: Developer[] }) {
   const onSubmit = async (data: FormValues) => {
     startTransition(async () => {
       try {
-        await addDeveloper({
+        await addStaff({
           email: data.email,
         });
         toast.success(t("notifications.addSuccess"));

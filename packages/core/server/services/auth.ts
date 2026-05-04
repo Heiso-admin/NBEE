@@ -4,7 +4,7 @@ import { signIn, signOut } from "@heiso/core/modules/auth/auth.config";
 import {
   hasAnyAccount,
   verifyPassword,
-} from "@heiso/core/lib/platform/account-adapter";
+} from "@heiso/core/lib/accounts/account-adapter";
 
 export async function login(username: string, password: string) {
   try {
@@ -43,8 +43,8 @@ export async function verifyPasswordOnly(
 
 /**
  * Account creation
- * Core mode: Create in local accounts table
- * CMS mode: Requires Platform API
+
+
  */
 export async function signup(input: {
   name?: string;
@@ -53,7 +53,7 @@ export async function signup(input: {
 }): Promise<{ id: string; name: string } | null> {
   try {
     const { createAccount } = await import(
-      "@heiso/core/lib/platform/account-adapter"
+      "@heiso/core/lib/accounts/account-adapter"
     );
     const account = await createAccount({
       email: input.email,

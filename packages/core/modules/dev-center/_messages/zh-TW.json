@@ -110,7 +110,7 @@
       "success": "API 密鑰已更新"
     }
   },
-  "developers": {
+  "staff": {
     "title": "開發中心",
     "loading": "正在加載開發者列表...",
     "columns": {
@@ -126,13 +126,13 @@
       "inputPlaceholder": "搜尋姓名或電子郵件..."
     },
     "add": {
-      "buttonLabel": "新增開發者",
-      "dialogTitle": "新增開發者",
+      "buttonLabel": "新增員工",
+      "dialogTitle": "新增員工",
       "dialogDescription": "輸入電子郵件地址以新增開發者。",
       "emailLabel": "電子郵件地址",
       "emailPlaceholder": "輸入開發者的電子郵件",
       "savingButton": "新增中...",
-      "saveButton": "新增開發者"
+      "saveButton": "新增員工"
     },
     "notifications": {
       "addSuccess": "成功新增開發者",

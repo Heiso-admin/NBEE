@@ -92,7 +92,7 @@ export default async function DashboardLayout({
     },
   ] satisfies UserAvatarMenuItem[];
 
-  if (membership.platformStaff) {
+  if (membership.staff) {
     userAvatarMenu[0].group?.push({
       id: "dev-center",
       text: t("userMenu.developer"),

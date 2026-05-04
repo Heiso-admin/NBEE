@@ -10,7 +10,7 @@ import {
 /**
  * userPasswordReset - 密碼重設 token
  *
- * accountId 關聯到 Platform.accounts (透過 FDW)
+ * accountId 關聯到 cell DB accounts
  */
 export const userPasswordReset = pgTable(
   "user_password_reset",

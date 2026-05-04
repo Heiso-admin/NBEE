@@ -17,10 +17,10 @@ async function getMembership() {
     throw new Error("Unauthorized");
   }
 
-  const platformStaff = session.user.platformStaff ?? false;
+  const staff = session.user.staff ?? false;
 
-  if (platformStaff) {
-    return { platformStaff, membership: null };
+  if (staff) {
+    return { staff, membership: null };
   }
 
   const account = await db.query.accounts.findFirst({
@@ -42,7 +42,7 @@ async function getMembership() {
   });
 
   return {
-    platformStaff,
+    staff,
     membership: account
       ? { id: account.id, role: account.role, customRole: account.customRole }
       : null,

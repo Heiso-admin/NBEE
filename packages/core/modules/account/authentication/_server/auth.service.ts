@@ -16,7 +16,7 @@ const passwordSchema = z
 
 /**
  * 更新密碼
- * 注意：密碼儲存在 Platform DB，此功能需要 Platform API 支援
+ * 注意：密碼儲存在 cell DB，此功能需要 cell DB 支援
  */
 export async function updatePassword(accountId: string, data: unknown) {
   const result = passwordSchema.safeParse(data);
@@ -24,24 +24,24 @@ export async function updatePassword(accountId: string, data: unknown) {
     throw new Error("Invalid password format");
   }
 
-  // TODO: 呼叫 Platform API 更新密碼
-  // 密碼現在儲存在 Platform DB 的 accounts 表
-  // 需要實作 Platform API: POST /api/platform/accounts/:accountId/update-password
-  console.warn("[updatePassword] Password update requires Platform API implementation");
+  // TODO: 呼叫 cell DB 更新密碼
+  // 密碼現在儲存在 cell DB 的 accounts 表
+  // 需要實作 cell DB: POST /api/platform/accounts/:accountId/update-password
+  console.warn("[updatePassword] Password update requires cell DB implementation");
 
-  throw new Error("Password update requires Platform API implementation");
+  throw new Error("Password update requires cell DB implementation");
 }
 
 /**
  * 切換 2FA
- * 注意：2FA 設定儲存在 Platform DB，此功能需要 Platform API 支援
+ * 注意：2FA 設定儲存在 cell DB，此功能需要 cell DB 支援
  */
 export async function toggle2FA(accountId: string, enabled: boolean) {
-  // TODO: 呼叫 Platform API 更新 2FA 設定
-  // 2FA 設定現在儲存在 Platform DB 的 accounts 表
-  console.warn("[toggle2FA] 2FA toggle requires Platform API implementation");
+  // TODO: 呼叫 cell DB 更新 2FA 設定
+  // 2FA 設定現在儲存在 cell DB 的 accounts 表
+  console.warn("[toggle2FA] 2FA toggle requires cell DB implementation");
 
-  throw new Error("2FA toggle requires Platform API implementation");
+  throw new Error("2FA toggle requires cell DB implementation");
 }
 
 /**

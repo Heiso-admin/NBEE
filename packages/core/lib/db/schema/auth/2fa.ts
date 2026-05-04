@@ -11,7 +11,7 @@ import {
 /**
  * user2faCode - 2FA 驗證碼
  *
- * accountId 關聯到 Platform.accounts (透過 FDW)
+ * accountId 關聯到 cell DB accounts
  */
 export const user2faCode = pgTable(
   "user_2fa_code",

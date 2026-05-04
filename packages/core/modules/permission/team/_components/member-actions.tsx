@@ -49,7 +49,7 @@ export function MemberActions({
 }) {
   const t = useTranslations("dashboard.permission.message");
   const { data: session } = useSession();
-  const { platformStaff } = useAccount();
+  const { staff } = useAccount();
   const { settings } = useSettings();
   const [isRemovePending, startRemoveTransition] = useTransition();
   const [isResendPending, startResendTransition] = useTransition();
@@ -92,7 +92,7 @@ export function MemberActions({
       key: "edit" as const,
       label: t("edit.title"),
       Icon: Edit2,
-      visible: !platformStaff && isUserActive,
+      visible: !staff && isUserActive,
       onClick: () => setOpenEditConfirm(true),
     },
     {
@@ -132,7 +132,7 @@ export function MemberActions({
       label: t("transfer.title"),
       Icon: Crown,
       visible:
-        !platformStaff && isCurrentUserOwner && canTransferTo && isUserActive,
+        !staff && isCurrentUserOwner && canTransferTo && isUserActive,
       onClick: () => setOpenTransferConfirm(true),
     },
     {
@@ -141,7 +141,7 @@ export function MemberActions({
       label: t("resetPassword.action"),
       Icon: RotateCcwKey,
       visible:
-        !platformStaff &&
+        !staff &&
         isCurrentUserOwner &&
         member.status === MemberStatus.Active &&
         isUserActive,
@@ -152,7 +152,7 @@ export function MemberActions({
       key: "remove" as const,
       label: t("remove.action"),
       Icon: Trash2,
-      visible: !platformStaff && isCurrentUserOwner,
+      visible: !staff && isCurrentUserOwner,
       onClick: () => setOpenRemoveConfirm(true),
     },
     // {
