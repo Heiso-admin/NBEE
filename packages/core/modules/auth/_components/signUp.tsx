@@ -97,7 +97,7 @@ export default function SignUp({ email }: { email?: string | null }) {
       return;
     }
 
-    redirect("/login");
+    redirect("/portal-login");
   };
 
   return (
@@ -210,7 +210,7 @@ export default function SignUp({ email }: { email?: string | null }) {
       <AuthRedirectHint>
         {t.rich("haveAccount", {
           link: (chunks) => (
-            <Link href="/login" className="underline ml-2">
+            <Link href="/portal-login" className="underline ml-2">
               {chunks}
             </Link>
           ),

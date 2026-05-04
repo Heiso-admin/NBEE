@@ -33,7 +33,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 h-full bg-background/60 border-r border-border flex flex-col">
       <Logo
-        href="/portal/core/account"
+        href="/portal/account"
         classNames={{
           main: "flex h-16 items-center border-b px-4 py-3",
           img: "w-20",

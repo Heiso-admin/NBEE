@@ -95,7 +95,7 @@ async function OrgLayoutWrap({
         {
           id: "accountSettings",
           text: t("accountSettings"),
-          href: "/portal/core/account/me",
+          href: "/portal/account/me",
           type: "Link",
         },
       ],
@@ -130,7 +130,7 @@ async function OrgLayoutWrap({
     userAvatarMenu[0].group?.push({
       id: "dev-center",
       text: t("developer"),
-      href: "/portal/core/staff-center",
+      href: "/portal/staff-center",
       type: "Link",
     });
   }

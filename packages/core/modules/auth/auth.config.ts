@@ -50,8 +50,8 @@ export const ALLOWED_DEV_EMAILS = STAFF_CONFIG.initialStaff;
 
 export const { handlers, signIn, signOut, auth, unstable_update } = NextAuth({
   pages: {
-    signIn: "/portal/login",
-    error: "/portal/login",
+    signIn: "/portal-login",
+    error: "/portal-login",
   },
   callbacks: {
     async signIn({ user, account, profile }) {

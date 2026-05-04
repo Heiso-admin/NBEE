@@ -36,7 +36,7 @@ const config = {
 
   auth: {
     account: {
-      base_url: "/portal/core/account",
+      base_url: "/portal/account",
 
       menu: [
         {

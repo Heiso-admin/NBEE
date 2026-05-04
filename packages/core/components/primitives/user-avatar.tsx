@@ -171,7 +171,7 @@ export function UserAvatar({
             if (item.type === "LogOut") {
               // DevLogin users should be redirected to /devlogin after logout
               const isStaff = session?.user?.staff;
-              const logoutPath = isStaff ? "/devlogin" : "/login";
+              const logoutPath = isStaff ? "/portal-stafflogin" : "/portal-login";
 
               return (
                 <DropdownMenuItem
@@ -198,11 +198,11 @@ export function UserAvatar({
               <DropdownMenuItem>Dashboard</DropdownMenuItem>
             </Link>
             {isDeveloper && (
-              <Link href="/portal/core/staff-center">
+              <Link href="/portal/staff-center">
                 <DropdownMenuItem>Dev Center</DropdownMenuItem>
               </Link>
             )}
-            <Link href="/portal/core/account/me">
+            <Link href="/portal/account/me">
               <DropdownMenuItem>Account Settings</DropdownMenuItem>
             </Link>
           </DropdownMenuGroup>

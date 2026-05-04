@@ -32,7 +32,7 @@ export async function GET(req: Request) {
     ? next
     : token
       ? `/join?token=${encodeURIComponent(token)}`
-      : "/join";
+      : "/portal-join";
 
   const res = NextResponse.redirect(target);
 

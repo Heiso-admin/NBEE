@@ -8,7 +8,7 @@ import { getTranslations } from "next-intl/server";
 import { PermissionProvider } from "@heiso/core/providers/permission";
 
 const nav: Navigation = {
-  rootPath: "/portal/core/staff-center",
+  rootPath: "/portal/staff-center",
   items: [
     // {
     //   id: 'Overview',
@@ -99,7 +99,7 @@ export default async function DashboardLayout({
         {
           id: "accountSettings",
           text: t("accountSettings"),
-          href: "/portal/core/account/me",
+          href: "/portal/account/me",
           type: "Link",
         },
       ],
@@ -134,7 +134,7 @@ export default async function DashboardLayout({
     userAvatarMenu[0].group?.push({
       id: "dev-center",
       text: t("developer"),
-      href: "/portal/core/staff-center",
+      href: "/portal/staff-center",
       type: "Link",
     });
   }
