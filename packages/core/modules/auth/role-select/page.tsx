@@ -12,7 +12,7 @@ export default function RoleSelect() {
     <div className="flex w-full max-w-lg flex-col gap-4">
       <h3 className="text-center text-muted-foreground">{t("title")}</h3>
 
-      <Link href="/admin-portal" className="block">
+      <Link href="/portal" className="block">
         <Card className="group flex flex-row cursor-pointer items-center justify-between p-6 transition-colors hover:bg-muted/50">
           <div className="flex items-center gap-4">
             <div className="rounded-full p-2">

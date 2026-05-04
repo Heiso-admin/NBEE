@@ -179,7 +179,7 @@ export async function createApiKey(data: CreateApiKeyInput): Promise<{
         updatedAt: apiKeys.updatedAt,
       });
 
-    revalidatePath("/admin-portal/settings/api-keys", "page");
+    revalidatePath("/portal/settings/api-keys", "page");
 
     return {
       success: true,
@@ -242,7 +242,7 @@ export async function updateApiKey(
       keyPrefix: result[0].truncatedKey || "???",
     };
 
-    revalidatePath("/admin-portal/settings/api-keys", "page");
+    revalidatePath("/portal/settings/api-keys", "page");
     return { success: true, data: updatedApiKey };
   } catch (error) {
     console.error("Error updating API key:", error);
@@ -279,7 +279,7 @@ export async function deleteApiKey(
       return { success: false, error: "API key not found" };
     }
 
-    revalidatePath("/admin-portal/settings/api-keys", "page");
+    revalidatePath("/portal/settings/api-keys", "page");
     return { success: true };
   } catch (error) {
     console.error("Error deleting API key:", error);

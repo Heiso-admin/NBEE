@@ -76,7 +76,7 @@ export class ResendProvider implements EmailProvider {
    *
    * Resend 使用 Svix 發送 webhook，header 為 `svix-signature`（多值空白分隔，
    * 格式 `v1,<base64-hmac>`）。secret 格式為 `whsec_<base64>`。
-   * 參考：https://resend.com/docs/admin-portal/webhooks/verify-webhooks
+   * 參考：https://resend.com/docs/portal/webhooks/verify-webhooks
    *
    * Secret 優先序：
    * 1. 呼叫端傳入的 `options.secret`（多租戶下的 tenant-specific secret）

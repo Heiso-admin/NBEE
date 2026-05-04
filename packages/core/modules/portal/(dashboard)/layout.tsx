@@ -89,7 +89,7 @@ async function OrgLayoutWrap({
         // {
         //   id: 'dashboard',
         //   text: t('dashboard'),
-        //   href: '/admin-portal',
+        //   href: '/portal',
         //   type: 'Link',
         // },
         {

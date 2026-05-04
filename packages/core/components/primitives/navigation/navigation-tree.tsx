@@ -362,8 +362,8 @@ function NavigationTreeItem({
             : `${removeTrailingSlash(frontendUrl)}/pages/${item.link.split("/")[1]}`;
         } else {
           return link.indexOf("/") === -1
-            ? `/admin-portal/cms/pages/${item.link}/edit`
-            : `/admin-portal/cms/pages/${item.link.split("/")[0]}/post/${item.link.split("/")[1]}/edit`;
+            ? `/portal/cms/pages/${item.link}/edit`
+            : `/portal/cms/pages/${item.link.split("/")[0]}/post/${item.link.split("/")[1]}/edit`;
         }
 
       default:

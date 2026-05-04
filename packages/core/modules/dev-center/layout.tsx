@@ -93,7 +93,7 @@ export default async function DashboardLayout({
         {
           id: "dashboard",
           text: t("dashboard"),
-          href: "/admin-portal",
+          href: "/portal",
           type: "Link",
         },
         {

@@ -1,4 +1,4 @@
-import { getDashboardMessages } from "@/modules/admin-portal/_messages";
+import { getDashboardMessages } from "@/modules/portal/_messages";
 import { getUserLocale } from "@heiso/core/server/locale";
 import { getRequestConfig } from "next-intl/server";
 

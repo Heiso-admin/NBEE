@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   // 若使用者已加入，無需設定 token，直接回 Dashboard
   const session = await auth();
   if (session?.member?.status === "active") {
-    return NextResponse.redirect("/admin-portal");
+    return NextResponse.redirect("/portal");
   }
 
   // 未登入：先寫入 cookie（若有 token），再導向 Login 並帶 join 標記

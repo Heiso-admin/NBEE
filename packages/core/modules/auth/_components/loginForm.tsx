@@ -63,7 +63,7 @@ function LoginForm({
   }, [searchParams, t]);
 
   const handleLoginSuccess = () => {
-    router.push("/admin-portal");
+    router.push("/portal");
   };
 
   const handleVerifyOTP = async (authEmail: string) => {

@@ -68,7 +68,7 @@ export function buildDashboardNavigation(
   }
 
   return {
-    rootPath: "/admin-portal",
+    rootPath: "/portal",
     items,
   };
 }

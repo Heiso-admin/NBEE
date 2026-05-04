@@ -39,7 +39,7 @@ export function Overview() {
                 key={metric.title}
                 className="hover:border-muted-foreground/35"
               >
-                <Link href={`/admin-portal${metric.path}`}>
+                <Link href={`/portal${metric.path}`}>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <IconComponent className="h-5 w-5" />

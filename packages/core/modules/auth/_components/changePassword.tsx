@@ -64,7 +64,7 @@ export default function ChangePasswordPage() {
         username: session?.user?.email ?? "",
         password,
         redirect: true,
-        callbackUrl: "/admin-portal",
+        callbackUrl: "/portal",
       });
       // 以上為帶 redirect 的流程，頁面將被替換；不需要在此處結束 loading
     } catch {
