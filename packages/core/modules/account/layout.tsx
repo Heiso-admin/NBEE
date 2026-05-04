@@ -18,7 +18,7 @@ export default async function DashboardLayout({
   const t = await getTranslations("account.layout");
 
   const navigation: Navigation = {
-    rootPath: "/account",
+    rootPath: "/portal/core/account",
     items: [
       {
         id: "preferences",
@@ -61,7 +61,7 @@ export default async function DashboardLayout({
         // {
         //   id: 'accountSettings',
         //   text: 'Account Settings',
-        //   href: '/account/me',
+        //   href: '/portal/core/account/me',
         //   type: 'Link',
         // },
       ],
@@ -96,7 +96,7 @@ export default async function DashboardLayout({
     userAvatarMenu[0].group?.push({
       id: "dev-center",
       text: t("userMenu.developer"),
-      href: "/dev-center",
+      href: "/portal/core/staff-center",
       type: "Link",
     });
   }
@@ -108,7 +108,7 @@ export default async function DashboardLayout({
           items: [
             {
               title: t("breadcrumb.account"),
-              link: "/account",
+              link: "/portal/core/account",
             },
           ],
         }}

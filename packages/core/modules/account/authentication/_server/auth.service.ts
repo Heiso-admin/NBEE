@@ -77,21 +77,3 @@ export async function findMembershipByAccountId(accountId: string) {
   };
 }
 
-/**
- * @deprecated 使用 findMembershipByAccountId 代替
- */
-export async function findMembershipByUserOrEmail(params: {
-  userId?: string;
-  email?: string;
-}) {
-  console.warn('[DEPRECATED] findMembershipByUserOrEmail is deprecated. Use findMembershipByAccountId instead.');
-
-  const { userId } = params || {};
-
-  // 嘗試將 userId 作為 accountId 使用
-  if (userId) {
-    return findMembershipByAccountId(userId);
-  }
-
-  return null;
-}

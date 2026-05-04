@@ -169,7 +169,7 @@ interface ResolvedContent {
 
 function buildArticleUrl(baseUrl: string, language: string, slug: string): string {
   const trimmedBase = baseUrl.replace(/\/$/, "");
-  return `${trimmedBase}/${language}/articles/${slug}`;
+  return `${trimmedBase}/${language}/blog/${slug}`;
 }
 
 function buildUnsubscribeUrl(baseUrl: string, token: string): string {

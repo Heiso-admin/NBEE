@@ -66,7 +66,7 @@ export interface CategoryItem {
 
 export interface TemplateItem {
   id: string;
-  userId: string;
+  accountId: string;
   pageId: string | null;
   name: string;
   description?: string;

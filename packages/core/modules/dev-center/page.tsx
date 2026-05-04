@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function MemberPage() {
-  redirect("/dev-center/staff");
+  redirect("/portal/core/staff-center/staff");
 }

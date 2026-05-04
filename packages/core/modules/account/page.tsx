@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function Profile() {
-  redirect("/account/me");
+  redirect("/portal/core/account/me");
 }

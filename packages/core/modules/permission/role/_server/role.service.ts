@@ -44,7 +44,7 @@ async function getRoles(): Promise<Role[]> {
 
 async function createRole(data: TRoleInsert) {
   const result = await db.insert(roles).values(data);
-  revalidatePath("/account/role", "page");
+  revalidatePath("/portal/core/account/role", "page");
   return result;
 }
 
@@ -54,7 +54,7 @@ async function updateRole(id: string, data: TRoleUpdate) {
     .set({ ...data, updatedAt: new Date() })
     .where(eq(roles.id, id));
 
-  revalidatePath("/account/role", "page");
+  revalidatePath("/portal/core/account/role", "page");
   return result;
 }
 
@@ -67,7 +67,7 @@ async function deleteRole({ id }: { id: string }) {
     })
     .where(and(eq(roles.id, id), isNull(roles.deletedAt)));
 
-  revalidatePath("/account/role", "page");
+  revalidatePath("/portal/core/account/role", "page");
   return result;
 }
 

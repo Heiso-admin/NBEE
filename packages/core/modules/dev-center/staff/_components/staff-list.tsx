@@ -72,7 +72,7 @@ export function StaffList({ data }: { data: Staff[] }) {
   const [isRemovePending, startRemoveTransition] = useTransition();
   const [filtering, setFiltering] = useState("");
   const [open, setOpen] = useState(false);
-  const t = useTranslations("devCenter.developers");
+  const t = useTranslations("devCenter.staff");
 
   const columns: ColumnDef<Staff>[] = [
     {
@@ -268,7 +268,7 @@ export const DeveloperUser = ({
   staff: Staff;
   isYou: boolean;
 }) => {
-  const t = useTranslations("devCenter.developers");
+  const t = useTranslations("devCenter.staff");
   const { user } = staff;
   const userName = user.name || user.email?.split("@")[0] || "Unknown";
 

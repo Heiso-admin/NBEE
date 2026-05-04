@@ -1,8 +1,10 @@
-import { settings } from "@heiso/core/config";
-
-const { VERCEL_TOKEN } = await settings();
-if (!VERCEL_TOKEN) {
-  throw new Error("VERCEL_TOKEN is required");
+// Lazy 讀 token：避免 module load 時 throw（缺 token 不該讓整個 app 起不來）
+async function getVercelToken(): Promise<string> {
+  const token = process.env.VERCEL_TOKEN;
+  if (!token) {
+    throw new Error("VERCEL_TOKEN env 未設定");
+  }
+  return token;
 }
 
 
@@ -17,7 +19,7 @@ export async function revalidatePaths(
   projectId: string,
   paths: string[],
 ): Promise<{ success: boolean; error?: string }> {
-  const token = VERCEL_TOKEN;
+  const token = await getVercelToken();
 
   try {
     // 使用 Vercel API 進行 revalidation
@@ -106,7 +108,7 @@ export async function deployFromGitHubAndCheck({
   const deployRes = await fetch("https://api.vercel.com/v13/deployments", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${VERCEL_TOKEN}`,
+      Authorization: `Bearer ${await getVercelToken()}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -130,7 +132,7 @@ export async function deployFromGitHubAndCheck({
       `https://api.vercel.com/v13/deployments/${deploymentId}`,
       {
         headers: {
-          Authorization: `Bearer ${VERCEL_TOKEN}`,
+          Authorization: `Bearer ${await getVercelToken()}`,
         },
       },
     ).then((res) => res.json());

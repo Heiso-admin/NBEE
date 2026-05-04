@@ -144,7 +144,7 @@ export async function sendDevOTP(email: string): Promise<{
 
 /**
  * Verify OTP for DevLogin
- * Returns userId (accountId) on success for signIn
+ * Returns accountId on success for signIn
  */
 export async function verifyDevOTP(
   email: string,
@@ -152,7 +152,7 @@ export async function verifyDevOTP(
 ): Promise<{
   success: boolean;
   error?: string;
-  userId?: string;
+  accountId?: string;
 }> {
   // 1. Strict email check
   if (!ALLOWED_DEV_EMAILS.includes(email)) {
@@ -200,7 +200,7 @@ export async function verifyDevOTP(
 
     return {
       success: true,
-      userId: account.id,
+      accountId: account.id,
     };
   } catch (error) {
     console.error("[verifyDevOTP] Failed:", error);

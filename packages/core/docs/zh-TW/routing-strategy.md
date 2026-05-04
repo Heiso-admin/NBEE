@@ -84,7 +84,7 @@ const config: NextConfig = {
   async rewrites() {
     return [
       {
-        source: '/dev-center/:path*',
+        source: '/portal/core/staff-center/:path*',
         destination: '/@heiso/core/app/dev-center/:path*',
       },
     ];

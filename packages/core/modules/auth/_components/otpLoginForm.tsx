@@ -113,7 +113,15 @@ export default function OTPLoginForm({
       const result = await verify(userEmail, values.code);
 
       if (!result.success) {
-        setError(t(`error.${result.message}`));
+        // 兼容兩種 server action 回傳格式（{ message } / { error }）
+        const raw = (result as { message?: string; error?: string }).message
+          ?? (result as { error?: string }).error;
+        // 如果是短 i18n key（如 'expired'、'invalid'）就走 i18n；否則直接顯示 raw
+        if (raw && /^[a-z_]+$/.test(raw)) {
+          setError(t(`error.${raw}`));
+        } else {
+          setError(raw ?? t("error.general"));
+        }
         return;
       }
 

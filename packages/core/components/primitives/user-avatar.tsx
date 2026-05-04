@@ -58,13 +58,13 @@ export function UserAvatar({
   //       {
   //         id: 'dev-center',
   //         text: 'Dev Center',
-  //         href: '/dev-center',
+  //         href: '/portal/core/staff-center',
   //         type: 'Link',
   //       },
   //       {
   //         id: 'accountSettings',
   //         text: 'Account Settings',
-  //         href: '/account/me',
+  //         href: '/portal/core/account/me',
   //         type: 'Link',
   //       },
   //     ],
@@ -198,11 +198,11 @@ export function UserAvatar({
               <DropdownMenuItem>Dashboard</DropdownMenuItem>
             </Link>
             {isDeveloper && (
-              <Link href="/dev-center">
+              <Link href="/portal/core/staff-center">
                 <DropdownMenuItem>Dev Center</DropdownMenuItem>
               </Link>
             )}
-            <Link href="/account/me">
+            <Link href="/portal/core/account/me">
               <DropdownMenuItem>Account Settings</DropdownMenuItem>
             </Link>
           </DropdownMenuGroup>

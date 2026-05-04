@@ -16,7 +16,7 @@ interface UserPermission {
  * 取得使用者權限
  * 統一使用 accounts 表
  */
-async function findUserPermissions(userId: string): Promise<UserPermission> {
+async function findUserPermissions(accountId: string): Promise<UserPermission> {
 
   const account = await db.query.accounts.findFirst({
     columns: {
@@ -47,7 +47,7 @@ async function findUserPermissions(userId: string): Promise<UserPermission> {
       },
     },
     where: (t, { eq, isNull, and }) =>
-      and(eq(t.id, userId), isNull(t.deletedAt)),
+      and(eq(t.id, accountId), isNull(t.deletedAt)),
   });
 
   if (!account) throw new Error("User not found");
