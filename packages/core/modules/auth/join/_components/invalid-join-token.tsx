@@ -11,7 +11,7 @@ export function InvalidJoinToken() {
       <p>{t("error.expiredLink")}</p>
       <Button
         onClick={() => {
-          signOut({ callbackUrl: "/auth/login" });
+          signOut({ callbackUrl: "/portal/auth/login" });
         }}
       >
         {t("action.reLogin")}

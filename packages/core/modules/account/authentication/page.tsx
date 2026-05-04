@@ -7,7 +7,7 @@ export default async function AuthenticationPage() {
     const session = await auth();
 
     if (!session?.user?.email) {
-        redirect("/auth/login");
+        redirect("/portal/auth/login");
     }
 
     const user = await cachedGetAccountByEmail(session.user.email);
