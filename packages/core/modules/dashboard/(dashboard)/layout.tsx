@@ -7,11 +7,11 @@ import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { getMyMembership, getMyAllowedMenuIds } from "./_server/membership.service";
 import { buildDashboardNavigation } from "./dashboard-config";
-import { DASHBOARD_DEFAULT_MENUS } from "@heiso/core/config/menus";
+import type { DashboardMenu } from "@heiso/core/config/menus";
 
 interface OrgLayoutProps {
   children: React.ReactNode;
-  menus?: typeof DASHBOARD_DEFAULT_MENUS;
+  menus?: Record<string, DashboardMenu>;
 }
 
 export default async function OrgLayout({ children, menus }: OrgLayoutProps) {
@@ -32,7 +32,7 @@ async function OrgLayoutWrap({
   menus
 }: {
   children: React.ReactNode;
-  menus?: typeof DASHBOARD_DEFAULT_MENUS;
+  menus?: Record<string, DashboardMenu>;
 }) {
   // Get user membership and permissions
   const membership = await getMyMembership();

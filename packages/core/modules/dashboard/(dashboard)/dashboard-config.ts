@@ -1,7 +1,7 @@
 import type { Navigation } from "@heiso/core/types/client";
-import { DASHBOARD_DEFAULT_MENUS } from "@heiso/core/config/menus";
+import type { DashboardMenu } from "@heiso/core/config/menus";
 
-export type DashboardMenuKey = keyof typeof DASHBOARD_DEFAULT_MENUS;
+export type DashboardMenuKey = string;
 
 /**
  * Transforms static menu config into Navigation structure.
@@ -10,12 +10,12 @@ export type DashboardMenuKey = keyof typeof DASHBOARD_DEFAULT_MENUS;
  * @param allowedMenuIds - Array of menu keys the user has permission to access.
  *                         If null/undefined, all menus are allowed (fullAccess).
  * @param translateFn - Optional function to translate menu titles.
- * @param menus - Optional custom menu configuration. Defaults to DASHBOARD_DEFAULT_MENUS.
+ * @param menus - Custom menu configuration（cms 自己定義，core 不再提供 default）。
  */
 export function buildDashboardNavigation(
   allowedMenuIds: string[] | null,
   translateFn?: (key: string) => string,
-  menus: typeof DASHBOARD_DEFAULT_MENUS = DASHBOARD_DEFAULT_MENUS
+  menus: Record<string, DashboardMenu> = {},
 ): Navigation {
   const menuEntries = Object.entries(menus);
 

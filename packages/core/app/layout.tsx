@@ -1,4 +1,4 @@
-import { getSiteSettings } from "@heiso/core/server/site.service";
+import { getPortalSetting } from "@heiso/core/server/site.service";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -33,7 +33,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
-  const initialSite = await getSiteSettings().catch(() => null);
+  const initialSite = await getPortalSetting().catch(() => null);
 
   return (
     <html

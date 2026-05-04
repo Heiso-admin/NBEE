@@ -7,6 +7,5 @@ export type DashboardMenu = {
   order: number;
 };
 
-export const DASHBOARD_DEFAULT_MENUS: Record<string, DashboardMenu> = {
-  // role 和 team 已移至 /account/ 路徑下
-};
+// CMS 端在 apps/cms/config/menus.ts 提供完整 menu 定義；
+// core 不維護 default menu（已移除空殼 DASHBOARD_DEFAULT_MENUS）。

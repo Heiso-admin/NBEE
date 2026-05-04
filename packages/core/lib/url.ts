@@ -1,21 +1,8 @@
 /**
- * 將字串轉換為網址友善格式 (Slug)，未包含空值檢查。
+ * 將字串轉換為網址友善格式 (Slug)。空值返回空字串。
  */
-export function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/[^\p{L}\s\d]/gu, "-")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-/**
- * 將字串轉換為網址友善格式 (Slug)，包含空值安全檢查，防止程式崩潰。
- */
-export function simpleSlugify(str: string): string {
+export function slugify(str: string | null | undefined): string {
   if (!str) return "";
-
   return str
     .toLowerCase()
     .trim()

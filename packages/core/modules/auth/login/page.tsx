@@ -2,7 +2,7 @@ import config from "@heiso/core/config";
 import { auth } from "@heiso/core/modules/auth/auth.config";
 import { hasAnyUser } from "@heiso/core/server/services/auth";
 import { getSystemSettings } from "@heiso/core/server/services/system/setting";
-import { getSiteSettings } from "@heiso/core/server/site.service";
+import { getPortalSetting } from "@heiso/core/server/site.service";
 import { redirect } from "next/navigation";
 import { Login } from "../_components";
 import InitializeTenantForm from "../_components/InitializeTenantForm";
@@ -69,7 +69,7 @@ export default async function Page({
 
   const anyUser = await hasAnyUser();
   const general = await getSystemSettings();
-  const site = await getSiteSettings();
+  const site = await getPortalSetting();
   const orgName =
     (site as any)?.branding?.organization || config?.site?.organization;
 

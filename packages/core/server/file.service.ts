@@ -6,24 +6,8 @@ import { generateId } from "@heiso/core/lib/id-generator";
 import { getPreSignedDownloadUrl } from "@heiso/core/lib/s3";
 import type { UploadedFile } from "@heiso/core/lib/upload-router";
 import { auth } from "@heiso/core/modules/auth/auth.config";
+import { getTenantIdOrThrow } from "@heiso/core/lib/utils/tenant";
 import { and, eq, isNull, sql } from "drizzle-orm";
-
-/**
- * Get tenant ID from environment(same logic as s3/index.ts)。
- * Prod: must be set, else throw。Dev/preview: fallback to "test"。
- */
-function getTenant(): string {
-  const tenant = process.env.TENANT_ID;
-  if (!tenant) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error(
-        "TENANT_ID environment variable is required in production"
-      );
-    }
-    return "test";
-  }
-  return tenant;
-}
 
 function detectFileType(rawType: string) {
   const mimeToType: Record<string, string> = {
@@ -71,7 +55,7 @@ export async function saveFile(file: UploadedFile) {
   }
 
   // Verify path 是 `{tenant}/...` 開頭(防 caller 偽造 path)
-  const tenant = getTenant();
+  const tenant = getTenantIdOrThrow();
   if (!file.path.startsWith(`${tenant}/`)) {
     return Response.json({ error: "Invalid path tenant prefix" }, { status: 400 });
   }

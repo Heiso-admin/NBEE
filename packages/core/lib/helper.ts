@@ -1,12 +1,3 @@
-export function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/[^\p{L}\s\d]/gu, "-")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export function formatBytes(
   bytes: number,
   opts: {

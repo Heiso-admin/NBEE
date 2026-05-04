@@ -1,6 +1,6 @@
 import { db } from "@heiso/core/lib/db";
 
-export async function getSiteSetting() {
+export async function getPortalSetting() {
   const settings = await db.query.settings.findMany({
     where: (fields, { and, eq, isNull }) => and(
       isNull(fields.deletedAt),

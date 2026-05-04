@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { settings } from "@heiso/core/config";
+import { getKey } from "@heiso/core/modules/dev-center/system/_server/key.service";
 import type { NewsletterSenderDnsRecord } from "@heiso/core/types/newsletter";
 
 /**
@@ -16,8 +16,11 @@ let _client: Resend | null = null;
 
 async function getClient(): Promise<Resend> {
   if (!_client) {
-    const { RESEND_API_KEY } = await settings();
-    _client = new Resend(RESEND_API_KEY as string);
+    const apiKey = await getKey("resend.api_key", "RESEND_API_KEY");
+    if (!apiKey) {
+      throw new Error("resend.api_key 未設定（dev-center/key 或 RESEND_API_KEY env）");
+    }
+    _client = new Resend(apiKey);
   }
   return _client;
 }

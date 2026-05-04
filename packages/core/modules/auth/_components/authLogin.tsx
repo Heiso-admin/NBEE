@@ -11,7 +11,7 @@ import {
 } from "@heiso/core/components/ui/form";
 import { Input } from "@heiso/core/components/ui/input";
 import config from "@heiso/core/config";
-import { SystemOauth } from "@heiso/core/modules/dev-center/system/settings/general/page";
+import { SystemOauth } from "@heiso/core/modules/dev-center/portal-setting/page";
 import { oAuthLogin } from "@heiso/core/server/services/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 

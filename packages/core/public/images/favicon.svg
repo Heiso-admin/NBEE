@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <g transform="translate(32, 32)">
+    <!-- Outer orange circle -->
+    <circle cx="0" cy="0" r="28" fill="#F58A1F"/>
+    <!-- Inner cut-out (forming O shape) -->
+    <circle cx="0" cy="0" r="12" fill="#FFFFFF"/>
+    <!-- Orange dot inside -->
+    <circle cx="0" cy="0" r="6" fill="#F58A1F"/>
+    <!-- Tail at bottom-left -->
+    <path d="M -19 19 Q -28 24 -32 32 Q -25 28 -16 25 Z" fill="#F58A1F"/>
+  </g>
+</svg>

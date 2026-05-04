@@ -20,6 +20,7 @@ import {
 } from "@heiso/core/components/ui/select";
 import type { Locale } from "@heiso/core/i18n/config";
 import { defaultLocale, getLanguageInfo } from "@heiso/core/i18n/config";
+import { LogoImage } from "@heiso/core/components/primitives/logo-image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -30,56 +31,23 @@ import {
   getGeneralSettings,
   saveDefaultLanguage,
   saveGeneralSetting,
-} from "../../_server/general.service";
+} from "./portal-setting.service";
 
 export const SystemOauth = {
-  none: {
-    name: "None",
-    value: "none",
-  },
-  google: {
-    name: "Google SSO",
-    value: "google",
-  },
-  microsoft: {
-    name: "Azure SSO",
-    value: "microsoft",
-  },
-};
-
-export type SiteSetting = {
-  basic: {
-    name?: string;
-    title?: string;
-    base_url?: string;
-    domain?: string;
-  };
-  branding: {
-    slogan?: string;
-    organization?: string;
-    description?: string;
-    copyright?: string;
-  };
-  assets: {
-    favicon?: string;
-    logo?: string;
-    ogImage?: string;
-  };
-  deployment?: {
-    vercel_project_id?: string;
-    revalidate_secret?: string;
-    preview_secret?: string;
-  };
-  system_oauth?: string;
+  none: { name: "None", value: "none" },
+  google: { name: "Google SSO", value: "google" },
+  microsoft: { name: "Azure SSO", value: "microsoft" },
 };
 
 const settingsSchema = z.object({
   system_oauth: z.string().optional(),
+  portal_logo: z.string().optional(),
+  portal_favicon: z.string().optional(),
 });
 
 type SettingsFormValues = z.infer<typeof settingsSchema>;
 
-export default function Setting() {
+export default function PortalSettingPage() {
   const t = useTranslations("devCenter.settings");
   const [isLoading, startTransition] = useTransition();
   const [systemSettings, setSystemSettings] = useState<any>(null);
@@ -109,6 +77,8 @@ export default function Setting() {
     resolver: zodResolver(settingsSchema),
     defaultValues: {
       system_oauth: systemSettings?.system_oauth ?? "none",
+      portal_logo: systemSettings?.portal_logo ?? "",
+      portal_favicon: systemSettings?.portal_favicon ?? "",
     },
   });
 
@@ -116,6 +86,8 @@ export default function Setting() {
     if (!systemSettings) return;
     form.reset({
       system_oauth: systemSettings?.system_oauth ?? "none",
+      portal_logo: systemSettings?.portal_logo ?? "",
+      portal_favicon: systemSettings?.portal_favicon ?? "",
     });
   }, [systemSettings, form]);
 
@@ -123,50 +95,80 @@ export default function Setting() {
     startTransition(async () => {
       await saveGeneralSetting(data);
       await fetchSettings();
-      toast.success("General settings updated");
+      toast.success("Portal settings updated");
     });
   }
 
   return (
     <div className="container mx-auto max-w-5xl justify-start py-10 space-y-6 mb-15 px-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Portal Setting</h1>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Card className="bg-card/50 p-6">
             <div className="flex flex-col gap-6">
-              <div className="grid gap-4">
-                <FormField
-                  control={form.control}
-                  name="system_oauth"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("system_oauth.label")}</FormLabel>
-                      <FormControl>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              {Object.values(SystemOauth).map((item) => (
-                                <SelectItem key={item.value} value={item.value}>
-                                  {item.name}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="system_oauth"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("system_oauth.label")}</FormLabel>
+                    <FormControl>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {Object.values(SystemOauth).map((item) => (
+                              <SelectItem key={item.value} value={item.value}>
+                                {item.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="portal_logo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Logo</FormLabel>
+                    <FormControl>
+                      <LogoImage
+                        value={field.value}
+                        onChange={(url) => field.onChange(url ?? "")}
+                        fallback="/images/logo.png"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="portal_favicon"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Favicon</FormLabel>
+                    <FormControl>
+                      <LogoImage
+                        value={field.value}
+                        onChange={(url) => field.onChange(url ?? "")}
+                        fallback="/images/favicon.png"
+                        className="h-12 w-12"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
           </Card>
 

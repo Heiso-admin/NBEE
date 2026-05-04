@@ -1,7 +1,7 @@
 "use client";
 
-import type { SiteSetting } from "@heiso/core/modules/dev-center/system/settings/general/page";
-import { getSiteSettings } from "@heiso/core/server/site.service";
+import type { PortalSetting } from "@heiso/core/types/system";
+import { getPortalSetting } from "@heiso/core/server/site.service";
 import {
   createContext,
   useCallback,
@@ -11,7 +11,7 @@ import {
 } from "react";
 
 interface SiteContextType {
-  site: SiteSetting | null;
+  site: PortalSetting | null;
   isLoading: boolean;
   error: Error | null;
   refresh: () => void;
@@ -29,16 +29,16 @@ export function SiteProvider({
   initialSite,
 }: {
   children: React.ReactNode;
-  initialSite?: SiteSetting | null;
+  initialSite?: PortalSetting | null;
 }) {
-  const [site, setSite] = useState<SiteSetting | null>(initialSite ?? null);
+  const [site, setSite] = useState<PortalSetting | null>(initialSite ?? null);
   const [isLoading, setIsLoading] = useState(!initialSite);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchSite = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await getSiteSettings();
+      const data = await getPortalSetting();
       if (data) {
         setSite(data);
       }

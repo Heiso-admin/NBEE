@@ -1,9 +1,9 @@
 "use server";
 
 import { db } from "@heiso/core/lib/db";
-import type { SiteSetting } from "@heiso/core/modules/dev-center/system/settings/general/page";
+import type { PortalSetting } from "@heiso/core/types/system";
 
-export async function getSiteSettings(): Promise<SiteSetting> {
+export async function getPortalSetting(): Promise<PortalSetting> {
   const settings = await db.query.settings.findMany({
     where: (fields, { and, eq, isNull }) => and(
       isNull(fields.deletedAt),
@@ -15,5 +15,5 @@ export async function getSiteSettings(): Promise<SiteSetting> {
   for (const { name, value } of settings) {
     result[name] = value;
   }
-  return result as SiteSetting;
+  return result as PortalSetting;
 }

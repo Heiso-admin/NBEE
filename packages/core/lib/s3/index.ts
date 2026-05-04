@@ -6,7 +6,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { settings } from "@heiso/core/config";
+import { getTenantIdOrThrow } from "@heiso/core/lib/utils/tenant";
 
 const kExpiresIn = 5 * 60; // 5 min(對齊 assets-foundation §5)
 
@@ -14,38 +14,23 @@ let s3Client: S3Client | null = null;
 
 export type Visibility = "public" | "private";
 
-/**
- * Get tenant ID from environment。
- * Prod: must be set, else throw。Dev/preview: fallback to "test"。
- */
-function getTenant(): string {
-  const tenant = process.env.TENANT_ID;
-  if (!tenant) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error(
-        "TENANT_ID environment variable is required in production"
-      );
-    }
-    return "test";
-  }
-  return tenant;
-}
-
 export async function initS3Client() {
   if (s3Client) return s3Client;
 
-  const { AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_S3_REGION } = await settings();
-  if (!AWS_ACCESS_KEY || !AWS_SECRET_KEY || !AWS_S3_REGION) {
+  const accessKey = process.env.NBEE_AWS_ACCESS_KEY;
+  const secretKey = process.env.NBEE_AWS_SECRET_KEY;
+  const region = process.env.NBEE_AWS_S3_REGION;
+  if (!accessKey || !secretKey || !region) {
     throw new Error(
-      "AWS_ACCESS_KEY or AWS_SECRET_KEY or AWS_S3_REGION is not set",
+      "NBEE_AWS_ACCESS_KEY / SECRET_KEY / S3_REGION 未設定（檢查 .env.local 與 SETTING.storage）",
     );
   }
 
   s3Client = new S3Client({
-    region: AWS_S3_REGION as string,
+    region,
     credentials: {
-      accessKeyId: AWS_ACCESS_KEY as string,
-      secretAccessKey: AWS_SECRET_KEY as string,
+      accessKeyId: accessKey,
+      secretAccessKey: secretKey,
     },
   });
 
@@ -53,22 +38,17 @@ export async function initS3Client() {
 }
 
 /**
- * 依 visibility 取對應 bucket name。
- * Phase B 過渡期:沒設新 env 時 fallback 到舊 `AWS_S3_BUCKET`(heiso-assets)。
+ * 依 visibility 取對應 bucket name（直接讀 process.env，由 next.config.ts 從 SETTING 注入）。
  */
 async function getBucketName(visibility: Visibility): Promise<string> {
-  const s = await settings();
-
   if (visibility === "public") {
-    const bucket = s.AWS_S3_BUCKET_PUBLIC ?? s.AWS_S3_BUCKET;
-    if (!bucket) throw new Error("AWS_S3_BUCKET_PUBLIC is not set");
-    return bucket as string;
+    const bucket = process.env.NBEE_AWS_S3_BUCKET_PUBLIC;
+    if (!bucket) throw new Error("NBEE_AWS_S3_BUCKET_PUBLIC 未設定");
+    return bucket;
   }
-
-  // private
-  const bucket = s.AWS_S3_BUCKET_PRIVATE;
-  if (!bucket) throw new Error("AWS_S3_BUCKET_PRIVATE is not set");
-  return bucket as string;
+  const bucket = process.env.NBEE_AWS_S3_BUCKET_PRIVATE;
+  if (!bucket) throw new Error("NBEE_AWS_S3_BUCKET_PRIVATE 未設定");
+  return bucket;
 }
 
 /**
@@ -85,7 +65,7 @@ export async function getPreSignedUrl(
   const s3Client = await initS3Client();
   const bucket = await getBucketName(visibility);
 
-  const tenant = getTenant();
+  const tenant = getTenantIdOrThrow();
   const path = `${tenant}/${filename}`;
   const command = new PutObjectCommand({
     Bucket: bucket,

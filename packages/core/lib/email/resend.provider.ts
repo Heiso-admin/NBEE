@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { Resend } from "resend";
-import { settings } from "@heiso/core/config";
+import { getKey } from "@heiso/core/modules/dev-center/system/_server/key.service";
 import type {
   EmailProvider,
   SendOptions,
@@ -20,13 +20,13 @@ export class ResendProvider implements EmailProvider {
 
   private async getClient(): Promise<Resend> {
     if (!this._client) {
-      const { RESEND_API_KEY } = await settings();
-      if (!RESEND_API_KEY) {
+      const apiKey = await getKey("resend.api_key", "RESEND_API_KEY");
+      if (!apiKey) {
         throw new Error(
-          "ResendProvider: RESEND_API_KEY is not configured",
+          "ResendProvider: resend.api_key is not configured (請在 dev-center/key 設定或設 RESEND_API_KEY)",
         );
       }
-      this._client = new Resend(RESEND_API_KEY as string);
+      this._client = new Resend(apiKey);
     }
     return this._client;
   }

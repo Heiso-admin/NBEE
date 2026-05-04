@@ -3,7 +3,7 @@ import ApprovedEmail from "@heiso/core/emails/approved";
 import { ForgotPasswordEmail } from "@heiso/core/emails/forgot-password";
 import InviteOwnerEmail from "@heiso/core/emails/invite-owner";
 import { InviteUserEmail } from "@heiso/core/emails/invite-user";
-import { getSiteSettings } from "@heiso/core/server/site.service";
+import { getPortalSetting } from "@heiso/core/server/site.service";
 import type {
   EmailProvider,
   SendOptions,
@@ -92,7 +92,7 @@ export async function sendInviteUserEmail({
   owner?: boolean;
   inviteToken: string;
 }) {
-  const site: any = await getSiteSettings();
+  const site: any = await getPortalSetting();
   const { BASE_HOST } = await settings();
 
   const siteLogo = site?.assets?.logo || "/images/logo.png";
@@ -129,7 +129,7 @@ export async function sendForgotPasswordEmail({
   name?: string;
   resetLink: string;
 }) {
-  const site: any = await getSiteSettings();
+  const site: any = await getPortalSetting();
   const { BASE_HOST } = await settings();
   const siteLogo = site?.assets?.logo || "/images/logo.png";
   const derivedLogoUrl =
@@ -159,7 +159,7 @@ export async function sendApprovedEmail({
   from: string;
   to: string[];
 }) {
-  const site: any = await getSiteSettings();
+  const site: any = await getPortalSetting();
   const { BASE_HOST } = await settings();
   const siteLogo = site?.assets?.logo || "/images/logo.png";
   const derivedLogoUrl =

@@ -1,22 +1,27 @@
 "use client";
 
-// import { useState } from 'react';
-import { ImageUploader } from "@heiso/core/components/primitives/uploader/image";
 import { Plus } from "lucide-react";
+import { ImageUploader } from "@heiso/core/components/primitives/uploader";
 
 export function LogoImage({
   value,
   onChange,
+  className,
+  fallback,
 }: {
   value?: string;
   onChange?: (url: string | null) => void;
+  className?: string;
+  /** 沒上傳時顯示的預設圖（如出廠 logo） */
+  fallback?: string;
 }) {
+  const displayValue = value || fallback;
   return (
     <div className="border-dashed rounded-md space-y-2">
       <ImageUploader
-        value={value}
+        className={className}
+        value={displayValue}
         onUploadComplete={(file) => {
-          console.log(file);
           onChange?.(file.url);
         }}
         onRemove={() => {

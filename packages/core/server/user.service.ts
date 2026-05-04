@@ -8,8 +8,10 @@ import {
 import { db } from "@heiso/core/lib/db";
 import type { TAccount } from "@heiso/core/lib/db/schema";
 
-// Re-export adapter functions
-export { getAccountByEmailAdapter as getAccountByEmail };
+// 包成 async function（"use server" 不允許同步 re-export，否則 build 時會被當 server action wrapper、runtime crash）
+export async function getAccountByEmail(email: string) {
+  return getAccountByEmailAdapter(email);
+}
 
 /**
  * Get all accounts

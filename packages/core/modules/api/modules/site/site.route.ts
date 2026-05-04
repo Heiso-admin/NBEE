@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
-import { getSiteSetting } from "./site.service";
+import { getPortalSetting } from "./site.service";
 
 export const siteRoute = new Elysia({
   name: "siteRoute",
   prefix: "/site",
-}).get("/", () => getSiteSetting());
+}).get("/", () => getPortalSetting());

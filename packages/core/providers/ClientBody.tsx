@@ -1,7 +1,7 @@
 "use client";
 
 import { Toaster } from "@heiso/core/components/ui/sonner";
-import type { SiteSetting } from "@heiso/core/modules/dev-center/system/settings/general/page";
+import type { PortalSetting } from "@heiso/core/types/system";
 import { AccountProvider } from "@heiso/core/providers/account";
 import { SettingProvider } from "@heiso/core/providers/settings";
 import { SiteProvider } from "@heiso/core/providers/site";
@@ -14,7 +14,7 @@ export default function ClientBody({
   initialSite,
 }: {
   children: React.ReactNode;
-  initialSite?: SiteSetting | null;
+  initialSite?: PortalSetting | null;
 }) {
   // Remove any extension-added classes during hydration
   useEffect(() => {

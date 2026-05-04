@@ -18,9 +18,9 @@ const nav: Navigation = {
     // },
     [
       {
-        id: "Settings",
-        title: "Settings",
-        path: "/settings",
+        id: "Portal Setting",
+        title: "Portal Setting",
+        path: "/portal-setting",
         icon: "settings",
       },
       {

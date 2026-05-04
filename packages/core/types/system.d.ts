@@ -38,8 +38,14 @@ export interface SiteAssets {
   ogImage: string;
 }
 
-export interface SiteSettings {
-  basic: SiteBasic;
-  branding: SiteBranding;
-  assets: SiteAssets;
+export interface PortalSetting {
+  basic: Partial<SiteBasic>;
+  branding: Partial<SiteBranding>;
+  assets: Partial<SiteAssets>;
+  deployment?: {
+    vercel_project_id?: string;
+    revalidate_secret?: string;
+    preview_secret?: string;
+  };
+  system_oauth?: string;
 }
