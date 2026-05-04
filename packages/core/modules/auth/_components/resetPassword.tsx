@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
           title={t("success.title")}
           description={t("success.description")}
         />
-        <Button onClick={() => router.push("/portal-login")} className="w-full mt-8">
+        <Button onClick={() => router.push("/auth/login")} className="w-full mt-8">
           {t("success.action")}
         </Button>
       </>
@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
         </div>
       </form>
       <AuthRedirectHint>
-        <Link href="/portal-login" className="ml-2">
+        <Link href="/auth/login" className="ml-2">
           {t("cancel")}
         </Link>
       </AuthRedirectHint>

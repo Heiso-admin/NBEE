@@ -240,7 +240,7 @@ export function MemberActions({
 
         setTimeout(() => {
           signOut({
-            callbackUrl: "/portal-login", // 轉移完成後登出當前用戶
+            callbackUrl: "/auth/login", // 轉移完成後登出當前用戶
             redirect: true,
           });
         }, 1500);

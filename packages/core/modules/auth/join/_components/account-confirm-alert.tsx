@@ -36,7 +36,7 @@ export function AccountConfirmAlert({ user }: { user: JoinUser | null }) {
             return;
           }
           // Status has been updated on page load; button only re-login
-          await signOut({ callbackUrl: "/portal-login" });
+          await signOut({ callbackUrl: "/auth/login" });
         }}
       >
         {t("action.reLogin")}

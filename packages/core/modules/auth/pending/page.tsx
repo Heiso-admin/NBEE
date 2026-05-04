@@ -21,7 +21,7 @@ export default function Pending() {
         </p>
       </div>
       <Button
-        onClick={() => signOut({ callbackUrl: "/portal-login" })}
+        onClick={() => signOut({ callbackUrl: "/auth/login" })}
         className="block mt-6 mx-auto"
       >
         {t("action.reLogin")}
