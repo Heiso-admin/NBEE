@@ -15,5 +15,5 @@ export async function getPortalSetting(): Promise<PortalSetting> {
   for (const { name, value } of settings) {
     result[name] = value;
   }
-  return result as PortalSetting;
+  return result as unknown as PortalSetting;
 }

@@ -80,7 +80,7 @@ export function PostTable({
   const itemLabel = translationItem || tPosts("item");
 
   const frontendBase =
-    site?.basic?.base_url ??
+    site?.basic?.baseUrl ??
     (site?.basic?.domain ? `https://${site.basic.domain}` : null);
   const previewSecret = site?.deployment?.preview_secret;
 
@@ -139,7 +139,7 @@ export function PostTable({
               {post.isPublished && post.status !== PostStatus.Hidden && (() => {
                 const frontendLink = buildFrontendLink
                   ? buildFrontendLink(post)
-                  : `${site?.basic?.base_url?.endsWith('/') ? site.basic.base_url.slice(0, -1) : site?.basic?.base_url || ''}${post.type ? `/${post.type}` : ''}${post.slug?.startsWith('/') ? post.slug : `/${post.slug || `pages/${post.id}`}`}`;
+                  : `${site?.basic?.baseUrl?.endsWith('/') ? site.basic.baseUrl.slice(0, -1) : site?.basic?.baseUrl || ''}${post.type ? `/${post.type}` : ''}${post.slug?.startsWith('/') ? post.slug : `/${post.slug || `pages/${post.id}`}`}`;
                 return frontendLink ? (
                   <Link
                     href={frontendLink}
@@ -254,7 +254,7 @@ export function PostTable({
       isPending,
       defaultBuildLink,
       onDelete,
-      site?.basic?.base_url,
+      site?.basic?.baseUrl,
       onDuplicate,
       onToggleStatus,
       showVisualEditor,

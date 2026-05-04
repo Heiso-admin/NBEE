@@ -19,5 +19,5 @@ export const settings = cache(async (withoutKey: boolean = false): Promise<Setti
 });
 
 export const site = cache((): Promise<Settings> => {
-  return getPortalSetting() as Promise<Settings>;
+  return getPortalSetting() as unknown as Promise<Settings>;
 });

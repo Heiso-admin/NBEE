@@ -118,7 +118,7 @@ function NavigationTreeItem({
   >(null);
 
   const { site } = useSite();
-  const frontendUrl = site?.basic?.base_url;
+  const frontendUrl = site?.basic?.baseUrl;
   const maxLevel = editable?.maxLevel ?? 3;
   const readonly = !editable;
   const dragDisabled = readonly || editable?.disableDrag;
