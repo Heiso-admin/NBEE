@@ -4,8 +4,18 @@
         "DATABASE_URL",
         "AUTH_SECRET",
         "RESEND_API_KEY",
+        "RESEND_WEBHOOK_SECRET",
         "HIVE_DATABASE_URL",
         "NOTIFY_EMAIL",
+        "OPENROUTER_API_KEY",
+        "NBEE_AWS_ACCESS_KEY",
+        "NBEE_AWS_SECRET_KEY",
+        "NBEE_AWS_S3_REGION",
+        "NBEE_AWS_S3_BUCKET_PUBLIC",
+        "NBEE_AWS_S3_BUCKET_PRIVATE",
+        "TENANT_ID",
+        "TENANT_QUOTA_BYTES",
+        "TENANT_QUOTA_TIER",
         "NEXT_PUBLIC_*"
     ],
     "tasks": {
