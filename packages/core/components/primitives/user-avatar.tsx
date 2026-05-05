@@ -198,11 +198,11 @@ export function UserAvatar({
               <DropdownMenuItem>Dashboard</DropdownMenuItem>
             </Link>
             {isDeveloper && (
-              <Link href="/portal/staff-center">
+              <Link href="/portal/core/staff-center">
                 <DropdownMenuItem>Dev Center</DropdownMenuItem>
               </Link>
             )}
-            <Link href="/portal/account/me">
+            <Link href="/portal/core/account/me">
               <DropdownMenuItem>Account Settings</DropdownMenuItem>
             </Link>
           </DropdownMenuGroup>
