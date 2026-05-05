@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   /* 
   const me = await getUser();
   if (me?.mustChangePassword) {
-    redirect("/portal/auth/change-password");
+    redirect("/auth/change-password");
   }
   */
 

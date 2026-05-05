@@ -15,7 +15,7 @@ export default auth(async (req) => {
 
   // 未登入：針對匹配的路由導向到 /login
   if (!req.auth) {
-    const response = NextResponse.redirect(new URL("/portal/auth/login", req.url));
+    const response = NextResponse.redirect(new URL("/auth/login", req.url));
     const token = req.nextUrl.searchParams.get("token");
     if (token) {
       // Set token to cookie with 7 days expiration
@@ -34,8 +34,8 @@ export default auth(async (req) => {
     const memberStatus = req.auth?.member?.status ?? null;
     const pathname = req.nextUrl.pathname;
 
-    if (memberStatus !== "active" && pathname !== "/portal/auth/pending") {
-      const pendingUrl = new URL("/portal/auth/pending", req.url);
+    if (memberStatus !== "active" && pathname !== "/auth/pending") {
+      const pendingUrl = new URL("/auth/pending", req.url);
       return NextResponse.redirect(pendingUrl);
     }
   }
